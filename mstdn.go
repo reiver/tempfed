@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 
 	"tempfed/cfg"
+	"tempfed/lib/backoff"
 	"tempfed/lib/mstdn"
 	"tempfed/srv/log"
 )
@@ -20,7 +22,10 @@ func mstdn() {
 		wg.Add(1)
 		go func(host string) {
 			defer wg.Done()
-			libmstdn.Accept(log, host)
+
+			libbackoff.KeepAlive(log, fmt.Sprintf("mstdn-compatible server %s", host), func(){
+				libmstdn.Accept(log, host)
+			})
 		}(host)
 	}
 
