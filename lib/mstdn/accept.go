@@ -82,12 +82,12 @@ func Accept(logger log.Logger, host string) {
 		}
 
 		batch, err := dbsrv.Conn.PrepareBatch(ctx, `INSERT INTO data_nodes (
-			id, type,
-			name, summary, content, media_type, url,
-			attributed_to, to, cc, audience,
-			published, updated, start_time, end_time, duration,
+			as_id, as_type,
+			as_name, as_summary, as_content, as_media_type, as_url,
+			as_attributed_to, as_to, as_cc, as_audience,
+			as_published, as_updated, as_start_time, as_end_time, as_duration,
 			hashtags,
-			in_reply_to, also_known_as, moved_to
+			as_in_reply_to, as_also_known_as, as_moved_to
 		)`)
 		if nil != err {
 			log.Error(

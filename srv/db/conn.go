@@ -33,46 +33,46 @@ func init() {
 			db_row_when_created DateTime DEFAULT now(),
 
 			-- identity
-			id             String,
-			type           Array(String),
+			as_id             String,
+			as_type           Array(String),
 
 			-- core Object fields
-			name           Nullable(String),
-			summary        Nullable(String),
-			content        Nullable(String),
-			media_type     Nullable(String),
-			url            Nullable(String),
+			as_name           Nullable(String),
+			as_summary        Nullable(String),
+			as_content        Nullable(String),
+			as_media_type     Nullable(String),
+			as_url            Nullable(String),
 
 			-- authorship & addressing
-			attributed_to  Array(String),
-			to             Array(String),
-			cc             Array(String),
-			audience       Array(String),
+			as_attributed_to  Array(String),
+			as_to             Array(String),
+			as_cc             Array(String),
+			as_audience       Array(String),
 
 			-- timestamps
-			published      Nullable(DateTime64(3)),
-			updated        Nullable(DateTime64(3)),
-			start_time     Nullable(DateTime64(3)),
-			end_time       Nullable(DateTime64(3)),
-			duration       Nullable(String),
+			as_published      Nullable(DateTime64(3)),
+			as_updated        Nullable(DateTime64(3)),
+			as_start_time     Nullable(DateTime64(3)),
+			as_end_time       Nullable(DateTime64(3)),
+			as_duration       Nullable(String),
 
 			-- tags
-			hashtags       Array(String),
+			hashtags          Array(String),
 
 			-- threading / context
-			in_reply_to    Array(String),
-			also_known_as  Array(String),
-			moved_to       Nullable(String),
+			as_in_reply_to    Array(String),
+			as_also_known_as  Array(String),
+			as_moved_to       Nullable(String),
 
 			-- Link-specific fields
-			href           Nullable(String),
-			hreflang       Nullable(String),
-			rel            Nullable(String),
-			height         Nullable(UInt32),
-			width          Nullable(UInt32)
+			as_href           Nullable(String),
+			as_hreflang       Nullable(String),
+			as_rel            Nullable(String),
+			as_height         Nullable(UInt32),
+			as_width          Nullable(UInt32)
 
 		) ENGINE = ReplacingMergeTree(db_row_when_created)
-		ORDER BY id
+		ORDER BY as_id
 		TTL db_row_when_created + INTERVAL 30 DAY DELETE
 		SETTINGS ttl_only_drop_parts = 1
 	`)
