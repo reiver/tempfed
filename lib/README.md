@@ -1,6 +1,6 @@
 # lib/
 
-In here are software libraries, called packages in the Go programming-language (golang).
+In here are **software libraries**, called **packages** in the Go programming-language (golang).
 
 Source-Code under `lib/` MUST NOT import from any other part of this source-code base!
 It can import from other things under `lib/`, and it can import 3rd party packages.
