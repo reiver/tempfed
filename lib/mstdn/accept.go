@@ -19,7 +19,7 @@ func Accept(logger log.Logger, host string) {
 
 	client, err := public.DialHost(host)
 	if nil != err {
-		log.Fatal(
+		log.Error(
 			stringly.String("", "failed to connect to mstdn server"),
 			stringly.String("host", host),
 			stringly.Error("error", err),
