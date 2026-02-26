@@ -28,6 +28,10 @@ func init() {
 
 	err = Conn.Exec(context.Background(), `
 		CREATE TABLE IF NOT EXISTS data_nodes (
+			-- internal
+			db_row_id       UUID     DEFAULT generateUUIDv7(),
+			db_row_when_created DateTime DEFAULT now(),
+
 			-- identity
 			id             String,
 			type           Array(String),
@@ -52,6 +56,9 @@ func init() {
 			end_time       Nullable(DateTime64(3)),
 			duration       Nullable(String),
 
+			-- tags
+			hashtags       Array(String),
+
 			-- threading / context
 			in_reply_to    Array(String),
 			also_known_as  Array(String),
@@ -62,13 +69,11 @@ func init() {
 			hreflang       Nullable(String),
 			rel            Nullable(String),
 			height         Nullable(UInt32),
-			width          Nullable(UInt32),
+			width          Nullable(UInt32)
 
-			-- ingestion metadata
-			db_when_created DateTime DEFAULT now()
-		) ENGINE = ReplacingMergeTree(db_when_created)
+		) ENGINE = ReplacingMergeTree(db_row_when_created)
 		ORDER BY id
-		TTL db_when_created + INTERVAL 30 DAY DELETE
+		TTL db_row_when_created + INTERVAL 30 DAY DELETE
 		SETTINGS ttl_only_drop_parts = 1
 	`)
 	if nil != err {

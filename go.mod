@@ -4,17 +4,17 @@ go 1.25.4
 
 require (
 	codeberg.org/reiver/go-asns v0.0.0-20260226014258-b3dc52329eb4
+	codeberg.org/reiver/go-env v0.0.0-20250910132431-0effb89a51cf
 	codeberg.org/reiver/go-field v0.0.0-20251210045308-95aa734b2ef0
 	codeberg.org/reiver/go-log v0.0.0-20251210180823-7d2830d455b4
 	github.com/ClickHouse/clickhouse-go/v2 v2.43.0
-	github.com/reiver/go-mstdn v0.0.0-20260226014914-fcb55d571c14
+	github.com/reiver/go-mstdn v0.0.0-20260226031121-beb16ebed76f
 	github.com/reiver/go-opt v0.0.0-20240809035328-1ff08dec9bc4
 )
 
 require (
 	codeberg.org/reiver/go-ansicolor v0.0.0-20251210134648-774252d78153 // indirect
 	codeberg.org/reiver/go-ascii v0.0.0-20250831011101-29ac37bfb987 // indirect
-	codeberg.org/reiver/go-env v0.0.0-20250910132431-0effb89a51cf // indirect
 	codeberg.org/reiver/go-erorr v0.0.0-20260103001947-b254c409f0ce // indirect
 	codeberg.org/reiver/go-httpsse v0.0.0-20250904033245-66e425bb7ac5 // indirect
 	codeberg.org/reiver/go-plan v0.0.0-20251205233422-898ceb8a386b // indirect

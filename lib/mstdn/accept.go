@@ -56,15 +56,37 @@ func Accept(logger log.Logger, host string) {
 			continue
 		}
 
-		logger.Debug(
+		logger.Trace(
+			stringly.String("event.Name", event.Name),
+			stringly.String("event.Status.ID", event.Status.ID.GetElse("")),
+			stringly.String("event.Status.CreatedAt", event.Status.CreatedAt.GetElse("")),
+			stringly.String("event.Status.URL", event.Status.URL.GetElse("")),
+			stringly.String("event.Status.URI", event.Status.URI.GetElse("")),
+			stringly.String("note.ID", note.ID.GetElse("")),
 			stringly.String("note.Content", note.Content.GetElse("")),
 		)
+
+		var tagNames []string
+		for _, tag := range note.Tags {
+			hashtag, casted := tag.(asns.HashTag)
+			if !casted {
+				continue
+			}
+
+			name, found := hashtag.Name.Get()
+			if !found {
+				continue
+			}
+
+			tagNames = append(tagNames, name)
+		}
 
 		batch, err := dbsrv.Conn.PrepareBatch(ctx, `INSERT INTO data_nodes (
 			id, type,
 			name, summary, content, media_type, url,
 			attributed_to, to, cc, audience,
 			published, updated, start_time, end_time, duration,
+			hashtags,
 			in_reply_to, also_known_as, moved_to
 		)`)
 		if nil != err {
@@ -92,6 +114,7 @@ func Accept(logger log.Logger, host string) {
 			nullableTime(note.StartTime),
 			nullableTime(note.EndTime),
 			nullableStr(note.Duration),
+			tagNames,
 			note.InReplyTo.Strings(),
 			note.AlsoKnownAs.Strings(),
 			nullableStr(note.MovedTo),
