@@ -2,6 +2,10 @@
 
 **tempfed** is a temporary caching server for the Fediverse and Social Web.
 
+**tempfed** is used by other Fediverse and Social Web service.
+For example, a feed service might use **tempfed**.
+Also, a search service might use **tempfed**.
+
 ## Motivation
 
 Traditionally, the most common cause for why a Fediverse or Social Web server crashed is
