@@ -16,7 +16,7 @@ Then running `tempfed` with configuration environment-varaibles would might some
 MSTDN_HOSTS="fedi.buzz, relay.example" ./tempfed
 ```
 
-The `MSTDN_HOSTS` environment-varaible would get return to the source-code by the `cfg.MstdnHosts()` function.
+The `MSTDN_HOSTS` environment-varaible would get returned to the source-code by the `cfg.MstdnHosts()` function.
 In the case of our example, `cfg.MstdnHosts()` would return:
 
 ```golang
