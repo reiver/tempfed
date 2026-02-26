@@ -4,7 +4,7 @@ go 1.25.4
 
 require (
 	codeberg.org/reiver/go-asns v0.0.0-20260226014258-b3dc52329eb4
-	codeberg.org/reiver/go-env v0.0.0-20250910132431-0effb89a51cf
+	codeberg.org/reiver/go-env v0.0.0-20260226035230-655ebf3f05e0
 	codeberg.org/reiver/go-field v0.0.0-20251210045308-95aa734b2ef0
 	codeberg.org/reiver/go-log v0.0.0-20251210180823-7d2830d455b4
 	github.com/ClickHouse/clickhouse-go/v2 v2.43.0
@@ -18,7 +18,7 @@ require (
 	codeberg.org/reiver/go-erorr v0.0.0-20260103001947-b254c409f0ce // indirect
 	codeberg.org/reiver/go-httpsse v0.0.0-20250904033245-66e425bb7ac5 // indirect
 	codeberg.org/reiver/go-plan v0.0.0-20251205233422-898ceb8a386b // indirect
-	codeberg.org/reiver/go-strparse v0.0.0-20250910131853-c28a285350ee // indirect
+	codeberg.org/reiver/go-strparse v0.0.0-20260226035126-c2b1dcc485cc // indirect
 	github.com/ClickHouse/ch-go v0.71.0 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

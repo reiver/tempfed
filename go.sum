@@ -4,8 +4,8 @@ codeberg.org/reiver/go-ascii v0.0.0-20250831011101-29ac37bfb987 h1:8f7cz3PdXP+F2
 codeberg.org/reiver/go-ascii v0.0.0-20250831011101-29ac37bfb987/go.mod h1:GuoN8yLT3H0D+0rswq8A+6sQF99w/HvueBMU3n4IPk4=
 codeberg.org/reiver/go-asns v0.0.0-20260226014258-b3dc52329eb4 h1:y7Zmx9IwPjFFRlniLZpAh9Nm7nsomkDNh/fU3P0eKyQ=
 codeberg.org/reiver/go-asns v0.0.0-20260226014258-b3dc52329eb4/go.mod h1:8geFOJjoRB41o5H0HWrwu8Y3pERlowbQPKDfhYircrE=
-codeberg.org/reiver/go-env v0.0.0-20250910132431-0effb89a51cf h1:VGYLv7/Yk3ELdq16/PV226oBGldCtg7T29fJ1jyvwqM=
-codeberg.org/reiver/go-env v0.0.0-20250910132431-0effb89a51cf/go.mod h1:+jUFhGyiUypsnV1FFJIK8GSXtLTgdQzacriJ2whmK4E=
+codeberg.org/reiver/go-env v0.0.0-20260226035230-655ebf3f05e0 h1:kKkVvHj99cPclcvp3Sr+drtZ3G8tvyAOkflNlp+ykjU=
+codeberg.org/reiver/go-env v0.0.0-20260226035230-655ebf3f05e0/go.mod h1:hLLtifoqWR4tgU7KFzPXKuRiuHxyJHNRdHyDvK1tYac=
 codeberg.org/reiver/go-erorr v0.0.0-20260103001947-b254c409f0ce h1:w6RVDeJJWh0aGD6eSGNEggX8EgCDQDFiJWdxxtH7h90=
 codeberg.org/reiver/go-erorr v0.0.0-20260103001947-b254c409f0ce/go.mod h1:JK+FexydwPFzMe6od9T7LAM/SjXxjsbxOP0VHUVJ1VM=
 codeberg.org/reiver/go-field v0.0.0-20251210045308-95aa734b2ef0 h1:zGfFryV4SFmCiK3MKZOk5adG7kIb45bsBvz9SeVI01A=
@@ -16,8 +16,8 @@ codeberg.org/reiver/go-log v0.0.0-20251210180823-7d2830d455b4 h1:ImnnW4CogGCxxAP
 codeberg.org/reiver/go-log v0.0.0-20251210180823-7d2830d455b4/go.mod h1:1gEHJk0bnafi4GiVkHOWtj5MR4MtiO3OQL//cx1QSbo=
 codeberg.org/reiver/go-plan v0.0.0-20251205233422-898ceb8a386b h1:ypmc96LG9M70ZeU967BeIGD2vsExB8NeF0+fvUm0P0s=
 codeberg.org/reiver/go-plan v0.0.0-20251205233422-898ceb8a386b/go.mod h1:tB4bTAecrAUS1W1RgfxBNtDrtp/aAlH+7u8peTLZ/kA=
-codeberg.org/reiver/go-strparse v0.0.0-20250910131853-c28a285350ee h1:niPRrBoYY+IEFjo3+qJiT8xrqTOAIUheaCjUr3vC9tM=
-codeberg.org/reiver/go-strparse v0.0.0-20250910131853-c28a285350ee/go.mod h1:CpECZtrSEzBBXUa0yyIgFp82hqkBHeUV9qr7VAvy1Mk=
+codeberg.org/reiver/go-strparse v0.0.0-20260226035126-c2b1dcc485cc h1:Wnf49832CEMJTWJFAOVmMFA37ps2bZD6FqHJRvtsSlI=
+codeberg.org/reiver/go-strparse v0.0.0-20260226035126-c2b1dcc485cc/go.mod h1:CpECZtrSEzBBXUa0yyIgFp82hqkBHeUV9qr7VAvy1Mk=
 github.com/ClickHouse/ch-go v0.71.0 h1:bUdZ/EZj/LcVHsMqaRUP2holqygrPWQKeMjc6nZoyRM=
 github.com/ClickHouse/ch-go v0.71.0/go.mod h1:NwbNc+7jaqfY58dmdDUbG4Jl22vThgx1cYjBw0vtgXw=
 github.com/ClickHouse/clickhouse-go/v2 v2.43.0 h1:fUR05TrF1GyvLDa/mAQjkx7KbgwdLRffs2n9O3WobtE=
