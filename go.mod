@@ -14,9 +14,11 @@ require (
 require (
 	codeberg.org/reiver/go-ansicolor v0.0.0-20251210134648-774252d78153 // indirect
 	codeberg.org/reiver/go-ascii v0.0.0-20250831011101-29ac37bfb987 // indirect
+	codeberg.org/reiver/go-env v0.0.0-20250910132431-0effb89a51cf // indirect
 	codeberg.org/reiver/go-erorr v0.0.0-20260103001947-b254c409f0ce // indirect
 	codeberg.org/reiver/go-httpsse v0.0.0-20250904033245-66e425bb7ac5 // indirect
 	codeberg.org/reiver/go-plan v0.0.0-20251205233422-898ceb8a386b // indirect
+	codeberg.org/reiver/go-strparse v0.0.0-20250910131853-c28a285350ee // indirect
 	github.com/ClickHouse/ch-go v0.71.0 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -34,7 +36,7 @@ require (
 	github.com/reiver/go-jsonint v0.0.0-20241119162208-a71145908f18 // indirect
 	github.com/reiver/go-jsonld v0.0.0-20250611053742-8fec84a9f5f8 // indirect
 	github.com/reiver/go-jsonstr v0.0.0-20240802000653-a5a8363975f1 // indirect
-	github.com/reiver/go-lck v0.0.0-20240808133902-b56df221c39f // indirect
+	github.com/reiver/go-lck v0.0.0-20250904175207-b06db1642fd1 // indirect
 	github.com/reiver/go-nul v0.0.0-20260226004802-f87085371089 // indirect
 	github.com/reiver/go-utf8 v2.0.2-0.20240806185936-5dd7c5557d34+incompatible // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
