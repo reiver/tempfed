@@ -21,4 +21,4 @@ etc.
 
 ## Author
 
-Package **opt** was written by [Charles Iliya Krempeaux](http://reiver.link)
+Software **tmpfed** was written by [Charles Iliya Krempeaux](http://reiver.link)
