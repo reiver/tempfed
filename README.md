@@ -19,9 +19,26 @@ etc.
 —
 by providing a service (to Fediverse and Social Web servers) that stores **posts** for a _short_ period of time.
 
-That way Fediverse and Social Web servers do _not_ have to store this data themselves.
+(In this context, "posts" being the different ActivityPub `Object` and `Link` types
+—
+such as:
+`Article`,
+`Audio`,
+`Document`,
+`Event`,
+`Image`,
+`Note`,
+`Object`,
+`Link`,
+`Mention`,
+`Video`,
+etc.)
 
-Here are some example of who Fediverse and Social Web servers could use **tempfed**:
+That way, Fediverse and Social Web servers do _not_ have to store this data themselves
+—
+and risk crashing due to it.
+
+Here are some example of how Fediverse and Social Web servers could use **tempfed**:
 
 * a social-media application could get the post data for a user's home-feed from **tempfed**
 * a custom feed service might get the post data from **tempfed**
