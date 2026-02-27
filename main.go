@@ -15,10 +15,24 @@ func main() {
 
 	log.Informf("tempfed ⚡")
 
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	sigCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	<-mstdn(ctx)
+	ctx, cancel := context.WithCancel(sigCtx)
+	defer cancel()
+
+	mstdnDone := mstdn(ctx)
+	wwwDone := www(ctx)
+
+	select {
+	case <-mstdnDone:
+	case <-wwwDone:
+	}
+
+	cancel()
+
+	<-mstdnDone
+	<-wwwDone
 
 	dbsrv.Conn.Close()
 	log.Informf("tempfed 👻")
