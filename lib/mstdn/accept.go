@@ -7,11 +7,22 @@ import (
 	"codeberg.org/reiver/go-asns"
 	"codeberg.org/reiver/go-field/stringly"
 	"codeberg.org/reiver/go-log"
+	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/reiver/go-mstdn/api/v1/streaming/public"
 	"github.com/reiver/go-opt"
 
+	"tempfed/cfg"
 	"tempfed/srv/db"
 )
+
+const insertSQL = `INSERT INTO data_nodes (
+	as_id, as_type,
+	as_name, as_summary, as_content, as_media_type, as_url,
+	as_attributed_to, as_to, as_cc, as_audience,
+	as_published, as_updated, as_start_time, as_end_time, as_duration,
+	hashtags,
+	as_in_reply_to, as_also_known_as, as_moved_to
+)`
 
 func Accept(ctx context.Context, logger log.Logger, host string) {
 	log := logger.Begin()
@@ -36,10 +47,26 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 		}
 	}()
 
+	batchSize := cfg.BatchSize()
+	flushInterval := cfg.BatchFlushInterval()
+
+	batch, err := dbsrv.Conn.PrepareBatch(ctx, insertSQL)
+	if nil != err {
+		log.Error(
+			stringly.String("", "failed to prepare batch"),
+			stringly.Error("error", err),
+		)
+		return
+	}
+
+	rowCount := 0
+	lastFlush := time.Now()
+
 	for client.Next() {
 		if nil != ctx.Err() {
-			return
+			break
 		}
+
 		var event public.Event
 
 		err := client.Decode(&event)
@@ -82,22 +109,6 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 			tagNames = append(tagNames, name)
 		}
 
-		batch, err := dbsrv.Conn.PrepareBatch(ctx, `INSERT INTO data_nodes (
-			as_id, as_type,
-			as_name, as_summary, as_content, as_media_type, as_url,
-			as_attributed_to, as_to, as_cc, as_audience,
-			as_published, as_updated, as_start_time, as_end_time, as_duration,
-			hashtags,
-			as_in_reply_to, as_also_known_as, as_moved_to
-		)`)
-		if nil != err {
-			log.Error(
-				stringly.String("", "failed to prepare batch"),
-				stringly.Error("error", err),
-			)
-			continue
-		}
-
 		err = batch.Append(
 			note.ID.GetElse(""),
 			[]string{"Note"},
@@ -128,21 +139,45 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 			continue
 		}
 
-		err = batch.Send()
-		if nil != err {
-			log.Error(
-				stringly.String("", "failed to send batch"),
-				stringly.Error("error", err),
-			)
-			continue
+		rowCount++
+
+		if rowCount >= batchSize || time.Since(lastFlush) >= flushInterval {
+			batch, rowCount, lastFlush = flush(ctx, log, batch, rowCount)
 		}
 	}
+
+	// flush any remaining buffered rows
+	if rowCount > 0 {
+		flush(ctx, log, batch, rowCount)
+	}
+
 	if err := client.Err(); nil != err {
 		log.Error(
 			stringly.String("", "post-stream error"),
 			stringly.Error("error", err),
 		)
 	}
+}
+
+func flush(ctx context.Context, log log.Logger, batch driver.Batch, rowCount int) (driver.Batch, int, time.Time) {
+	err := batch.Send()
+	if nil != err {
+		log.Error(
+			stringly.String("", "failed to send batch"),
+			stringly.Error("error", err),
+		)
+	}
+
+	newBatch, err := dbsrv.Conn.PrepareBatch(ctx, insertSQL)
+	if nil != err {
+		log.Error(
+			stringly.String("", "failed to prepare batch"),
+			stringly.Error("error", err),
+		)
+		return batch, 0, time.Now()
+	}
+
+	return newBatch, 0, time.Now()
 }
 
 func nullableStr(o opt.Optional[string]) *string {
