@@ -18,7 +18,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	mstdn(ctx)
+	<-mstdn(ctx)
 
 	dbsrv.Conn.Close()
 	log.Informf("tempfed 👻")

@@ -11,12 +11,13 @@ import (
 	"tempfed/srv/log"
 )
 
-func mstdn(ctx context.Context) {
+func mstdn(ctx context.Context) <-chan struct{} {
 	log := logsrv.Begin()
 	defer log.End()
 
 	hosts := cfg.MstdnHosts()
 
+	done := make(chan struct{})
 	var wg sync.WaitGroup
 
 	for _, host := range hosts {
@@ -30,5 +31,10 @@ func mstdn(ctx context.Context) {
 		}(host)
 	}
 
-	wg.Wait()
+	go func() {
+		wg.Wait()
+		close(done)
+	}()
+
+	return done
 }
