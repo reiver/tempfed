@@ -2,6 +2,7 @@ package libmstdn
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"codeberg.org/reiver/go-asns"
@@ -50,6 +51,7 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 	batchSize := cfg.BatchSize()
 	flushInterval := cfg.BatchFlushInterval()
 	batchTimeout := cfg.BatchTimeout()
+	statsInterval := cfg.StatsLogInterval()
 
 	prepCtx, prepCancel := context.WithTimeout(ctx, batchTimeout)
 	batch, err := dbsrv.Conn.PrepareBatch(prepCtx, insertSQL)
@@ -65,6 +67,31 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 	rowCount := 0
 	lastFlush := time.Now()
 
+	var postsReceived int
+	var postsInserted int
+	var postsDropped int
+	var batchesFlushed int
+	lastStatsLog := time.Now()
+
+	logStats := func() {
+		if time.Since(lastStatsLog) < statsInterval {
+			return
+		}
+		log.Inform(
+			stringly.String("", "stats"),
+			stringly.String("host", host),
+			stringly.String("received", fmt.Sprintf("%d", postsReceived)),
+			stringly.String("inserted", fmt.Sprintf("%d", postsInserted)),
+			stringly.String("dropped", fmt.Sprintf("%d", postsDropped)),
+			stringly.String("batches", fmt.Sprintf("%d", batchesFlushed)),
+		)
+		postsReceived = 0
+		postsInserted = 0
+		postsDropped = 0
+		batchesFlushed = 0
+		lastStatsLog = time.Now()
+	}
+
 	for client.Next() {
 		if nil != ctx.Err() {
 			break
@@ -78,14 +105,20 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 				stringly.String("", "failed to decode event"),
 				stringly.Error("error", err),
 			)
+			postsDropped++
+			logStats()
 			continue
 		}
 
 		var note asns.Note
 		err = event.Status.ActivityNote(&note)
 		if nil != err {
+			postsDropped++
+			logStats()
 			continue
 		}
+
+		postsReceived++
 
 		logger.Trace(
 			stringly.String("event.Name", event.Name),
@@ -139,19 +172,38 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 				stringly.String("", "failed to append row"),
 				stringly.Error("error", err),
 			)
+			postsDropped++
+			logStats()
 			continue
 		}
 
 		rowCount++
 
 		if rowCount >= batchSize || time.Since(lastFlush) >= flushInterval {
-			batch, rowCount, lastFlush = flush(ctx, log, batch, rowCount, batchTimeout)
+			flushedCount := rowCount
+			var ok bool
+			batch, rowCount, lastFlush, ok = flush(ctx, log, batch, rowCount, batchTimeout)
+			if ok {
+				postsInserted += flushedCount
+				batchesFlushed++
+			} else {
+				postsDropped += flushedCount
+			}
 		}
+
+		logStats()
 	}
 
 	// flush any remaining buffered rows
 	if rowCount > 0 {
-		flush(ctx, log, batch, rowCount, batchTimeout)
+		flushedCount := rowCount
+		_, _, _, ok := flush(ctx, log, batch, flushedCount, batchTimeout)
+		if ok {
+			postsInserted += flushedCount
+			batchesFlushed++
+		} else {
+			postsDropped += flushedCount
+		}
 	}
 
 	if err := client.Err(); nil != err {
@@ -162,7 +214,7 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 	}
 }
 
-func flush(ctx context.Context, log log.Logger, batch driver.Batch, rowCount int, timeout time.Duration) (driver.Batch, int, time.Time) {
+func flush(ctx context.Context, log log.Logger, batch driver.Batch, rowCount int, timeout time.Duration) (driver.Batch, int, time.Time, bool) {
 	err := batch.Send()
 	if nil != err {
 		log.Error(
@@ -170,6 +222,7 @@ func flush(ctx context.Context, log log.Logger, batch driver.Batch, rowCount int
 			stringly.Error("error", err),
 		)
 	}
+	sendOK := nil == err
 
 	prepCtx, prepCancel := context.WithTimeout(ctx, timeout)
 	newBatch, err := dbsrv.Conn.PrepareBatch(prepCtx, insertSQL)
@@ -179,10 +232,10 @@ func flush(ctx context.Context, log log.Logger, batch driver.Batch, rowCount int
 			stringly.String("", "failed to prepare batch"),
 			stringly.Error("error", err),
 		)
-		return batch, 0, time.Now()
+		return batch, 0, time.Now(), sendOK
 	}
 
-	return newBatch, 0, time.Now()
+	return newBatch, 0, time.Now(), sendOK
 }
 
 func nullableStr(o opt.Optional[string]) *string {
