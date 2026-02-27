@@ -3,6 +3,7 @@ package libmstdn
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"codeberg.org/reiver/go-asns"
@@ -133,6 +134,7 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 			stringly.String("event.Status.URL", event.Status.URL.GetElse("")),
 			stringly.String("event.Status.URI", event.Status.URI.GetElse("")),
 			stringly.String("note.ID", note.ID.GetElse("")),
+			stringly.String("note.AttributedTo", strings.Join(note.AttributedTo.Strings(), ", ")),
 			stringly.String("note.Content", note.Content.GetElse("")),
 		)
 
