@@ -73,6 +73,11 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 	var batchesFlushed int
 	lastStatsLog := time.Now()
 
+	var totalReceived int
+	var totalInserted int
+	var totalDropped int
+	var totalBatches int
+
 	logStats := func() {
 		if time.Since(lastStatsLog) < statsInterval {
 			return
@@ -85,6 +90,10 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 			stringly.String("dropped", fmt.Sprintf("%d", postsDropped)),
 			stringly.String("batches", fmt.Sprintf("%d", batchesFlushed)),
 		)
+		totalReceived += postsReceived
+		totalInserted += postsInserted
+		totalDropped += postsDropped
+		totalBatches += batchesFlushed
 		postsReceived = 0
 		postsInserted = 0
 		postsDropped = 0
@@ -205,6 +214,20 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 			postsDropped += flushedCount
 		}
 	}
+
+	// log final cumulative stats on shutdown
+	totalReceived += postsReceived
+	totalInserted += postsInserted
+	totalDropped += postsDropped
+	totalBatches += batchesFlushed
+	log.Inform(
+		stringly.String("", "total-stats"),
+		stringly.String("host", host),
+		stringly.String("received", fmt.Sprintf("%d", totalReceived)),
+		stringly.String("inserted", fmt.Sprintf("%d", totalInserted)),
+		stringly.String("dropped", fmt.Sprintf("%d", totalDropped)),
+		stringly.String("batches", fmt.Sprintf("%d", totalBatches)),
+	)
 
 	if err := client.Err(); nil != err {
 		log.Error(
