@@ -49,8 +49,11 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 
 	batchSize := cfg.BatchSize()
 	flushInterval := cfg.BatchFlushInterval()
+	batchTimeout := cfg.BatchTimeout()
 
-	batch, err := dbsrv.Conn.PrepareBatch(ctx, insertSQL)
+	prepCtx, prepCancel := context.WithTimeout(ctx, batchTimeout)
+	batch, err := dbsrv.Conn.PrepareBatch(prepCtx, insertSQL)
+	prepCancel()
 	if nil != err {
 		log.Error(
 			stringly.String("", "failed to prepare batch"),
@@ -142,13 +145,13 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 		rowCount++
 
 		if rowCount >= batchSize || time.Since(lastFlush) >= flushInterval {
-			batch, rowCount, lastFlush = flush(ctx, log, batch, rowCount)
+			batch, rowCount, lastFlush = flush(ctx, log, batch, rowCount, batchTimeout)
 		}
 	}
 
 	// flush any remaining buffered rows
 	if rowCount > 0 {
-		flush(ctx, log, batch, rowCount)
+		flush(ctx, log, batch, rowCount, batchTimeout)
 	}
 
 	if err := client.Err(); nil != err {
@@ -159,7 +162,7 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 	}
 }
 
-func flush(ctx context.Context, log log.Logger, batch driver.Batch, rowCount int) (driver.Batch, int, time.Time) {
+func flush(ctx context.Context, log log.Logger, batch driver.Batch, rowCount int, timeout time.Duration) (driver.Batch, int, time.Time) {
 	err := batch.Send()
 	if nil != err {
 		log.Error(
@@ -168,7 +171,9 @@ func flush(ctx context.Context, log log.Logger, batch driver.Batch, rowCount int
 		)
 	}
 
-	newBatch, err := dbsrv.Conn.PrepareBatch(ctx, insertSQL)
+	prepCtx, prepCancel := context.WithTimeout(ctx, timeout)
+	newBatch, err := dbsrv.Conn.PrepareBatch(prepCtx, insertSQL)
+	prepCancel()
 	if nil != err {
 		log.Error(
 			stringly.String("", "failed to prepare batch"),
