@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
@@ -10,7 +11,7 @@ import (
 	"tempfed/srv/log"
 )
 
-func mstdn() {
+func mstdn(ctx context.Context) {
 	log := logsrv.Begin()
 	defer log.End()
 
@@ -23,8 +24,8 @@ func mstdn() {
 		go func(host string) {
 			defer wg.Done()
 
-			libbackoff.KeepAlive(log, fmt.Sprintf("mstdn-compatible server %s", host), func(){
-				libmstdn.Accept(log, host)
+			libbackoff.KeepAlive(ctx, log, fmt.Sprintf("mstdn-compatible server %s", host), func(){
+				libmstdn.Accept(ctx, log, host)
 			})
 		}(host)
 	}

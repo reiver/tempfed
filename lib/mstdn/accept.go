@@ -13,7 +13,7 @@ import (
 	"tempfed/srv/db"
 )
 
-func Accept(logger log.Logger, host string) {
+func Accept(ctx context.Context, logger log.Logger, host string) {
 	log := logger.Begin()
 	defer log.End()
 
@@ -36,9 +36,10 @@ func Accept(logger log.Logger, host string) {
 		}
 	}()
 
-	ctx := context.Background()
-
 	for client.Next() {
+		if nil != ctx.Err() {
+			return
+		}
 		var event public.Event
 
 		err := client.Decode(&event)

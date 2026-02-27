@@ -35,5 +35,3 @@ func init() {
 		panic(fmt.Errorf("failed to create data_nodes table in ClickHouse database server (%q): %w", host, err))
 	}
 }
-
-//@TODO: deal with "defer Conn.Close()"

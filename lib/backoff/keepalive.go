@@ -1,6 +1,7 @@
 package libbackoff
 
 import (
+	"context"
 	"math/rand/v2"
 	"time"
 
@@ -8,7 +9,7 @@ import (
 	"codeberg.org/reiver/go-log"
 )
 
-func KeepAlive(logger log.Logger, name string, fn func()) {
+func KeepAlive(ctx context.Context, logger log.Logger, name string, fn func()) {
 	log := logger.Begin()
 	defer log.End()
 
@@ -26,6 +27,10 @@ func KeepAlive(logger log.Logger, name string, fn func()) {
 
 		fn()
 
+		if nil != ctx.Err() {
+			return
+		}
+
 		elapsed := time.Since(started)
 
 		if resetAfter <= elapsed {
@@ -40,7 +45,11 @@ func KeepAlive(logger log.Logger, name string, fn func()) {
 			stringly.String("delay", actualDelay.String()),
 		)
 
-		time.Sleep(actualDelay)
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(actualDelay):
+		}
 
 		delay = time.Duration(float64(delay) * multiplier)
 		if delay > maxDelay {
