@@ -8,6 +8,7 @@ import (
 	"tempfed/cfg"
 	"tempfed/lib/backoff"
 	"tempfed/lib/mstdn"
+	"tempfed/srv/db"
 	"tempfed/srv/log"
 )
 
@@ -16,6 +17,9 @@ func mstdn(ctx context.Context) <-chan struct{} {
 	defer log.End()
 
 	hosts := cfg.MstdnHosts()
+	batchSize := cfg.BatchSize()
+	flushInterval := cfg.BatchFlushInterval()
+	statsInterval := cfg.StatsLogInterval()
 
 	done := make(chan struct{})
 	var wg sync.WaitGroup
@@ -26,7 +30,7 @@ func mstdn(ctx context.Context) <-chan struct{} {
 			defer wg.Done()
 
 			libbackoff.KeepAlive(ctx, log, fmt.Sprintf("mstdn-compatible server %s", host), func(){
-				libmstdn.Accept(ctx, log, host)
+				libmstdn.Accept(ctx, log, host, dbsrv.Conn, batchSize, flushInterval, statsInterval)
 			})
 		}(host)
 	}

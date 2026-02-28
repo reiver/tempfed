@@ -12,9 +12,6 @@ import (
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/reiver/go-mstdn/api/v1/streaming/public"
 	"github.com/reiver/go-opt"
-
-	"tempfed/cfg"
-	"tempfed/srv/db"
 )
 
 const insertSQL = `INSERT INTO data_nodes (
@@ -26,7 +23,7 @@ const insertSQL = `INSERT INTO data_nodes (
 	as_in_reply_to, as_also_known_as, as_moved_to
 )`
 
-func Accept(ctx context.Context, logger log.Logger, host string) {
+func Accept(ctx context.Context, logger log.Logger, host string, conn driver.Conn, batchSize int, flushInterval time.Duration, statsInterval time.Duration) {
 	log := logger.Begin()
 	defer log.End()
 
@@ -49,11 +46,7 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 		}
 	}()
 
-	batchSize := cfg.BatchSize()
-	flushInterval := cfg.BatchFlushInterval()
-	statsInterval := cfg.StatsLogInterval()
-
-	batch, err := dbsrv.Conn.PrepareBatch(ctx, insertSQL)
+	batch, err := conn.PrepareBatch(ctx, insertSQL)
 	if nil != err {
 		log.Error(
 			stringly.String("", "failed to prepare batch"),
@@ -190,7 +183,7 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 		if rowCount >= batchSize || time.Since(lastFlush) >= flushInterval {
 			flushedCount := rowCount
 			var ok bool
-			batch, rowCount, lastFlush, ok = flush(ctx, log, batch, rowCount)
+			batch, rowCount, lastFlush, ok = flush(ctx, log, conn, batch, rowCount)
 			if ok {
 				postsInserted += flushedCount
 				batchesFlushed++
@@ -205,7 +198,7 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 	// flush any remaining buffered rows
 	if rowCount > 0 {
 		flushedCount := rowCount
-		_, _, _, ok := flush(ctx, log, batch, flushedCount)
+		_, _, _, ok := flush(ctx, log, conn, batch, flushedCount)
 		if ok {
 			postsInserted += flushedCount
 			batchesFlushed++
@@ -236,7 +229,7 @@ func Accept(ctx context.Context, logger log.Logger, host string) {
 	}
 }
 
-func flush(ctx context.Context, log log.Logger, batch driver.Batch, rowCount int) (driver.Batch, int, time.Time, bool) {
+func flush(ctx context.Context, log log.Logger, conn driver.Conn, batch driver.Batch, rowCount int) (driver.Batch, int, time.Time, bool) {
 	err := batch.Send()
 	if nil != err {
 		log.Error(
@@ -246,7 +239,7 @@ func flush(ctx context.Context, log log.Logger, batch driver.Batch, rowCount int
 	}
 	sendOK := nil == err
 
-	newBatch, err := dbsrv.Conn.PrepareBatch(ctx, insertSQL)
+	newBatch, err := conn.PrepareBatch(ctx, insertSQL)
 	if nil != err {
 		log.Error(
 			stringly.String("", "failed to prepare batch"),
