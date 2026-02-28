@@ -28,18 +28,18 @@ func www(ctx context.Context) <-chan struct{} {
 
 	go func() {
 		defer close(done)
-		log.Informf("😈 www spawned, listening to TCP-address %q", server.Addr)
+		log.Highlightf("😈 www spawned, listening to TCP-address %q", server.Addr)
 		err := server.ListenAndServe()
 		if nil != err && http.ErrServerClosed != err {
 			log.Errorf("💀 www server error: %s", err)
 		}
-		log.Informf("😵 www died, that was listening to TCP-address %q", server.Addr)
+		log.Highlightf("😵 www died, that was listening to TCP-address %q", server.Addr)
 	}()
 
 	go func() {
 		<-ctx.Done()
 
-		log.Informf("👼 www killed, that was listening to TCP-address %q", server.Addr)
+		log.Highlightf("👼 www killed, that was listening to TCP-address %q", server.Addr)
 		err := server.Shutdown(context.Background())
 		if nil != err {
 			log.Errorf("www server shutdown error: %s", err)

@@ -13,7 +13,7 @@ func main() {
 	log := logsrv.Begin()
 	defer log.End()
 
-	log.Informf("tempfed ⚡")
+	log.Highlightf("tempfed ⚡")
 
 	sigCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -34,6 +34,6 @@ func main() {
 	<-mstdnDone
 	<-wwwDone
 
-	dbsrv.Conn.Close()
-	log.Informf("tempfed 👻")
+//	dbsrv.Conn.Close()
+	log.Highlightf("tempfed 👻")
 }
