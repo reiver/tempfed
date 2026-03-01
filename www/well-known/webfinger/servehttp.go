@@ -29,7 +29,7 @@ func init() {
 }
 
 func serveWebFinger(resource string, rels ...string) ([]byte, error) {
-	log := logsrv.Begin()
+	log := logsrv.Begin(stringly.String("www.path", path))
 	defer log.End()
 
 	{
@@ -52,7 +52,7 @@ func serveWebFinger(resource string, rels ...string) ([]byte, error) {
 }
 
 func serveActorHost(resource string, actor string, host string) ([]byte, error) {
-	log := logsrv.Begin()
+	log := logsrv.Begin(stringly.String("www.path", path))
 	defer log.End()
 
 	log.Trace(
