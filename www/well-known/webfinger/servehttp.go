@@ -50,6 +50,9 @@ func serveWebFinger(resource string, rels ...string) ([]byte, error) {
 }
 
 func serveActorHost(resource string, actor string, host string) ([]byte, error) {
+	// gozaar (noun): one who carries out / performs / executes
+	const prefix string = "/gozaar/"
+
 	log := logsrv.Begin()
 	defer log.End()
 
@@ -60,7 +63,7 @@ func serveActorHost(resource string, actor string, host string) ([]byte, error) 
 	var url = gourl.URL{
 		Scheme: "https",
 		Host: host,
-		Path: "/" + actor,
+		Path: prefix + actor,
 	}
 
 	var href string = url.String()
