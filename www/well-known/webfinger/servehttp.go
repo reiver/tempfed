@@ -60,7 +60,10 @@ func serveActorHost(resource string, actor string, host string) ([]byte, error) 
 		stringly.String("host", host),
 	)
 
-	if !strings.HasPrefix(actor, "search:") && !strings.HasPrefix(actor, "search-") {
+//@TODO: refactor code so these aren't hard-coded here.
+	if !strings.HasPrefix(actor, "search-") &&
+	   !strings.HasPrefix(actor, "search:") &&
+	   "example" != actor {
 		return nil, errhttp.Return(http.StatusNotFound)
 	}
 
