@@ -18,7 +18,22 @@ func Actor(host string, actor string) string {
 	return url.String()
 }
 
+func ActorInBox(host string, actor string) string {
+//@TODO: make the path join safer.
+	return Actor(host, actor) + "/inbox"
+}
+
 func ActorOutBox(host string, actor string) string {
 //@TODO: make the path join safer.
 	return Actor(host, actor) + "/outbox"
+}
+
+func SharedInBox(host string) string {
+	var url = gourl.URL{
+		Scheme: "https",
+		Host:   host,
+		Path:   "/inbox",
+	}
+
+	return url.String()
 }
