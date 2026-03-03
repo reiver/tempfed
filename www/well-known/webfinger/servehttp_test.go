@@ -72,49 +72,64 @@ func TestServeActorHost(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
+	for testNumber, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 			bytes, err := serveActorHost(test.Resource, test.Actor, test.Host)
 
 			if test.ExpectError {
 				if nil == err {
-					t.Fatal("expected an error but got nil")
+					t.Errorf("For test #%d, expected an error but got nil.", testNumber)
+					return
 				}
 
 				httpErr, ok := err.(errhttp.Error)
 				if !ok {
-					t.Fatalf("expected errhttp.Error but got %T: %v", err, err)
+					t.Errorf("For test #%d, expected errhttp.Error but got %T.", testNumber, err)
+					t.Logf("ERROR: %v", err)
+					return
 				}
 
 				if test.ExpectStatusCode != httpErr.ErrHTTP() {
-					t.Fatalf("expected HTTP status %d but got %d", test.ExpectStatusCode, httpErr.ErrHTTP())
+					t.Errorf("For test #%d, the actual HTTP status-code is not what was expected.", testNumber)
+					t.Logf("EXPECTED: %d", test.ExpectStatusCode)
+					t.Logf("ACTUAL:   %d", httpErr.ErrHTTP())
+					return
 				}
 
 				return
 			}
 
 			if nil != err {
-				t.Fatalf("unexpected error: %v", err)
+				t.Errorf("For test #%d, received an unexpected error.", testNumber)
+				t.Logf("ERROR: %v", err)
+				return
 			}
 
 			if nil == bytes {
-				t.Fatal("expected non-nil bytes but got nil")
+				t.Errorf("For test #%d, expected non-nil bytes but got nil.", testNumber)
+				return
 			}
 
 			var jrd map[string]any
 			err = json.Unmarshal(bytes, &jrd)
 			if nil != err {
-				t.Fatalf("failed to unmarshal JRD JSON: %v", err)
+				t.Errorf("For test #%d, failed to unmarshal JRD JSON.", testNumber)
+				t.Logf("ERROR: %v", err)
+				return
 			}
 
 			// Check subject
 			{
 				subject, exists := jrd["subject"]
 				if !exists {
-					t.Fatal("JRD missing 'subject' field")
+					t.Errorf("For test #%d, JRD missing 'subject' field.", testNumber)
+					return
 				}
 				if test.Resource != subject {
-					t.Fatalf("expected subject %q but got %q", test.Resource, subject)
+					t.Errorf("For test #%d, the actual 'subject' is not what was expected.", testNumber)
+					t.Logf("EXPECTED: %q", test.Resource)
+					t.Logf("ACTUAL:   %q", subject)
+					return
 				}
 			}
 
@@ -122,19 +137,27 @@ func TestServeActorHost(t *testing.T) {
 			{
 				aliasesRaw, exists := jrd["aliases"]
 				if !exists {
-					t.Fatal("JRD missing 'aliases' field")
+					t.Errorf("For test #%d, JRD missing 'aliases' field.", testNumber)
+					return
 				}
 				aliases, ok := aliasesRaw.([]any)
 				if !ok {
-					t.Fatalf("expected aliases to be an array but got %T", aliasesRaw)
+					t.Errorf("For test #%d, expected 'aliases' to be an array but got %T.", testNumber, aliasesRaw)
+					return
 				}
 				if 1 != len(aliases) {
-					t.Fatalf("expected 1 alias but got %d", len(aliases))
+					t.Errorf("For test #%d, the actual number of aliases is not what was expected.", testNumber)
+					t.Logf("EXPECTED: %d", 1)
+					t.Logf("ACTUAL:   %d", len(aliases))
+					return
 				}
 
 				expectedSelf := "https://" + test.Host + "/gozaar/" + test.Actor
 				if expectedSelf != aliases[0] {
-					t.Fatalf("expected alias %q but got %q", expectedSelf, aliases[0])
+					t.Errorf("For test #%d, the actual alias[0] is not what was expected.", testNumber)
+					t.Logf("EXPECTED: %q", expectedSelf)
+					t.Logf("ACTUAL:   %q", aliases[0])
+					return
 				}
 			}
 
@@ -142,14 +165,19 @@ func TestServeActorHost(t *testing.T) {
 			{
 				linksRaw, exists := jrd["links"]
 				if !exists {
-					t.Fatal("JRD missing 'links' field")
+					t.Errorf("For test #%d, JRD missing 'links' field.", testNumber)
+					return
 				}
 				links, ok := linksRaw.([]any)
 				if !ok {
-					t.Fatalf("expected links to be an array but got %T", linksRaw)
+					t.Errorf("For test #%d, expected 'links' to be an array but got %T.", testNumber, linksRaw)
+					return
 				}
 				if 3 != len(links) {
-					t.Fatalf("expected 3 links but got %d", len(links))
+					t.Errorf("For test #%d, the actual number of links is not what was expected.", testNumber)
+					t.Logf("EXPECTED: %d", 3)
+					t.Logf("ACTUAL:   %d", len(links))
+					return
 				}
 
 				expectedSelf := "https://" + test.Host + "/gozaar/" + test.Actor
@@ -159,16 +187,26 @@ func TestServeActorHost(t *testing.T) {
 				{
 					link, ok := links[0].(map[string]any)
 					if !ok {
-						t.Fatalf("expected link[0] to be object but got %T", links[0])
+						t.Errorf("For test #%d, expected link[0] to be object but got %T.", testNumber, links[0])
+						return
 					}
 					if "self" != link["rel"] {
-						t.Fatalf("expected link[0] rel 'self' but got %q", link["rel"])
+						t.Errorf("For test #%d, the actual link[0] 'rel' is not what was expected.", testNumber)
+						t.Logf("EXPECTED: %q", "self")
+						t.Logf("ACTUAL:   %q", link["rel"])
+						return
 					}
 					if "application/activity+json" != link["type"] {
-						t.Fatalf("expected link[0] type 'application/activity+json' but got %q", link["type"])
+						t.Errorf("For test #%d, the actual link[0] 'type' is not what was expected.", testNumber)
+						t.Logf("EXPECTED: %q", "application/activity+json")
+						t.Logf("ACTUAL:   %q", link["type"])
+						return
 					}
 					if expectedSelf != link["href"] {
-						t.Fatalf("expected link[0] href %q but got %q", expectedSelf, link["href"])
+						t.Errorf("For test #%d, the actual link[0] 'href' is not what was expected.", testNumber)
+						t.Logf("EXPECTED: %q", expectedSelf)
+						t.Logf("ACTUAL:   %q", link["href"])
+						return
 					}
 				}
 
@@ -176,16 +214,26 @@ func TestServeActorHost(t *testing.T) {
 				{
 					link, ok := links[1].(map[string]any)
 					if !ok {
-						t.Fatalf("expected link[1] to be object but got %T", links[1])
+						t.Errorf("For test #%d, expected link[1] to be object but got %T.", testNumber, links[1])
+						return
 					}
 					if "outbox" != link["rel"] {
-						t.Fatalf("expected link[1] rel 'outbox' but got %q", link["rel"])
+						t.Errorf("For test #%d, the actual link[1] 'rel' is not what was expected.", testNumber)
+						t.Logf("EXPECTED: %q", "outbox")
+						t.Logf("ACTUAL:   %q", link["rel"])
+						return
 					}
 					if "application/activity+json" != link["type"] {
-						t.Fatalf("expected link[1] type 'application/activity+json' but got %q", link["type"])
+						t.Errorf("For test #%d, the actual link[1] 'type' is not what was expected.", testNumber)
+						t.Logf("EXPECTED: %q", "application/activity+json")
+						t.Logf("ACTUAL:   %q", link["type"])
+						return
 					}
 					if expectedOutbox != link["href"] {
-						t.Fatalf("expected link[1] href %q but got %q", expectedOutbox, link["href"])
+						t.Errorf("For test #%d, the actual link[1] 'href' is not what was expected.", testNumber)
+						t.Logf("EXPECTED: %q", expectedOutbox)
+						t.Logf("ACTUAL:   %q", link["href"])
+						return
 					}
 				}
 
@@ -193,16 +241,26 @@ func TestServeActorHost(t *testing.T) {
 				{
 					link, ok := links[2].(map[string]any)
 					if !ok {
-						t.Fatalf("expected link[2] to be object but got %T", links[2])
+						t.Errorf("For test #%d, expected link[2] to be object but got %T.", testNumber, links[2])
+						return
 					}
 					if "outbox" != link["rel"] {
-						t.Fatalf("expected link[2] rel 'outbox' but got %q", link["rel"])
+						t.Errorf("For test #%d, the actual link[2] 'rel' is not what was expected.", testNumber)
+						t.Logf("EXPECTED: %q", "outbox")
+						t.Logf("ACTUAL:   %q", link["rel"])
+						return
 					}
 					if "text/event-stream" != link["type"] {
-						t.Fatalf("expected link[2] type 'text/event-stream' but got %q", link["type"])
+						t.Errorf("For test #%d, the actual link[2] 'type' is not what was expected.", testNumber)
+						t.Logf("EXPECTED: %q", "text/event-stream")
+						t.Logf("ACTUAL:   %q", link["type"])
+						return
 					}
 					if expectedOutbox != link["href"] {
-						t.Fatalf("expected link[2] href %q but got %q", expectedOutbox, link["href"])
+						t.Errorf("For test #%d, the actual link[2] 'href' is not what was expected.", testNumber)
+						t.Logf("EXPECTED: %q", expectedOutbox)
+						t.Logf("ACTUAL:   %q", link["href"])
+						return
 					}
 				}
 			}
