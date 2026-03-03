@@ -3,7 +3,6 @@ package verboten
 import (
 	"errors"
 	"net/http"
-	"strings"
 
 	"codeberg.org/reiver/go-accturi"
 	"codeberg.org/reiver/go-field/stringly"
@@ -11,6 +10,7 @@ import (
 	"github.com/reiver/go-errhttp"
 	"github.com/reiver/go-opt"
 
+	"tempfed/lib/actors"
 	"tempfed/lib/refs"
 	"tempfed/srv/http"
 	"tempfed/srv/log"
@@ -60,10 +60,7 @@ func serveActorHost(resource string, actor string, host string) ([]byte, error) 
 		stringly.String("host", host),
 	)
 
-//@TODO: refactor code so these aren't hard-coded here.
-	if !strings.HasPrefix(actor, "search-") &&
-	   !strings.HasPrefix(actor, "search:") &&
-	   "example" != actor {
+	if libactors.IsValidUserName(actor) {
 		return nil, errhttp.Return(http.StatusNotFound)
 	}
 
