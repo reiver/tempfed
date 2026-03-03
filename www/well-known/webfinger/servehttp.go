@@ -60,7 +60,7 @@ func serveActorHost(resource string, actor string, host string) ([]byte, error) 
 		stringly.String("host", host),
 	)
 
-	if libactors.IsValidUserName(actor) {
+	if !libactors.IsValidUserName(actor) {
 		return nil, errhttp.Return(http.StatusNotFound)
 	}
 
