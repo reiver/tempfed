@@ -9,6 +9,7 @@ import (
 	"github.com/reiver/go-opt"
 	"github.com/reiver/go-pathmux"
 
+	"tempfed/lib/actors"
 	"tempfed/lib/refs"
 	"tempfed/srv/http"
 	"tempfed/srv/log"
@@ -46,6 +47,14 @@ func serveHTTP(responseWriter http.ResponseWriter, request *pathmux.Parameterize
 		return
 	}
 	log.Trace(stringly.String("actor-name", actorName))
+
+	if !libactors.IsValidUserName(actorName) {
+		log.Warn(
+			stringly.S("not found because invalid actor user-name"),
+			stringly.String("actor-name", actorName),
+		)
+		return
+	}
 
 	{
 		var host string = request.HTTPRequest().Host
