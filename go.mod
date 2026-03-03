@@ -12,6 +12,7 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.43.0
 	github.com/reiver/go-errhttp v1.1.1-0.20240827033330-e4ea888843cc
 	github.com/reiver/go-etag v0.0.0-20241130123934-1a98d29fda6e
+	github.com/reiver/go-http404 v0.0.0-20260303090244-0bf7e6f73f9f
 	github.com/reiver/go-http500 v0.0.0-20250531141625-af98f83e19aa
 	github.com/reiver/go-mstdn v0.0.0-20260226031121-beb16ebed76f
 	github.com/reiver/go-opt v0.0.0-20240809035328-1ff08dec9bc4

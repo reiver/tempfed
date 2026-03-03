@@ -5,6 +5,7 @@ import (
 
 	"codeberg.org/reiver/go-asns"
 	"codeberg.org/reiver/go-field/stringly"
+	"github.com/reiver/go-http404"
 	"github.com/reiver/go-http500"
 	"github.com/reiver/go-opt"
 	"github.com/reiver/go-pathmux"
@@ -53,6 +54,7 @@ func serveHTTP(responseWriter http.ResponseWriter, request *pathmux.Parameterize
 			stringly.S("not found because invalid actor user-name"),
 			stringly.String("actor-name", actorName),
 		)
+		http404.NotFound(responseWriter, request.HTTPRequest())
 		return
 	}
 
