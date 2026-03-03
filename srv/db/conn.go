@@ -1,7 +1,10 @@
 package dbsrv
 
 import (
+	"flag"
 	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/ClickHouse/clickhouse-go/v2"
@@ -14,6 +17,11 @@ import (
 var Conn driver.Conn
 
 func init() {
+	// If we are running inside of a Go test, don't connect to the database.
+	if flag.Lookup("test.v") != nil || strings.HasSuffix(os.Args[0], ".test") {
+		return
+	}
+
 	var host string = cfg.ClickHouseHost()
 
 	var err error
