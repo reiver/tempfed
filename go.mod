@@ -16,7 +16,7 @@ require (
 	github.com/reiver/go-http500 v0.0.0-20250531141625-af98f83e19aa
 	github.com/reiver/go-mstdn v0.0.0-20260226031121-beb16ebed76f
 	github.com/reiver/go-opt v0.0.0-20240809035328-1ff08dec9bc4
-	github.com/reiver/go-pathmux v0.0.0-20250113184313-b773d1ae8cb7
+	github.com/reiver/go-pathmux v0.0.0-20260303220105-af405f418851
 )
 
 require (

@@ -106,8 +106,8 @@ github.com/reiver/go-path v0.0.0-20240327181650-5f2ee05890d8 h1:8JFCnRV4GVjP8XUF
 github.com/reiver/go-path v0.0.0-20240327181650-5f2ee05890d8/go.mod h1:4H3fxXTRSuvWviraF1tFTVXhRciV8KFGq5tzo1gb2Tk=
 github.com/reiver/go-pathmatch v1.0.1-0.20240802004530-0dc31d85afa8 h1:3mxWa4FELLc6TbC00ZZTe30tYUZ8HN4IHaH0m7Y3SPc=
 github.com/reiver/go-pathmatch v1.0.1-0.20240802004530-0dc31d85afa8/go.mod h1:SveMAOrJP7XCL3UlazOjQdKNCGG2T/E1zE6gDHfs3cA=
-github.com/reiver/go-pathmux v0.0.0-20250113184313-b773d1ae8cb7 h1:LczWwFGEC7C+NdxR1LseZ1RPwRLqnUibDTcuf13qGNA=
-github.com/reiver/go-pathmux v0.0.0-20250113184313-b773d1ae8cb7/go.mod h1:skftYndyTOU0cNVp491NSoiBJj96eABC2i8ipPVqRYU=
+github.com/reiver/go-pathmux v0.0.0-20260303220105-af405f418851 h1:tiPliGFC8ys1X9vqTTOmn90Rr6c2V6GhXNL3JBHkxKs=
+github.com/reiver/go-pathmux v0.0.0-20260303220105-af405f418851/go.mod h1:skftYndyTOU0cNVp491NSoiBJj96eABC2i8ipPVqRYU=
 github.com/reiver/go-rfc2234 v0.0.0-20240824134608-874192441e79 h1:DRNqoxS6b5TLHKjX5hE6PSL2b0GqlMiw5Vh4ct7oIYs=
 github.com/reiver/go-rfc2234 v0.0.0-20240824134608-874192441e79/go.mod h1:ukK719h1pqMMWmCcBwHnBCcY2lRYnnBpWljt3Ek4QDs=
 github.com/reiver/go-rfc3986 v0.0.0-20250715210429-fb2d5b78e44d h1:PqUUSx1GB5m16w96AI4C29Rz4n4vXk4N+Dr45Hqs1UM=
