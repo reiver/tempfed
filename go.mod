@@ -14,7 +14,7 @@ require (
 	github.com/reiver/go-etag v0.0.0-20241130123934-1a98d29fda6e
 	github.com/reiver/go-http404 v0.0.0-20260303090244-0bf7e6f73f9f
 	github.com/reiver/go-http500 v0.0.0-20250531141625-af98f83e19aa
-	github.com/reiver/go-mstdn v0.0.0-20260226031121-beb16ebed76f
+	github.com/reiver/go-mstdn v0.0.0-20260305121006-f522aacedc37
 	github.com/reiver/go-opt v0.0.0-20240809035328-1ff08dec9bc4
 	github.com/reiver/go-pathmux v0.0.0-20260303220105-af405f418851
 )
@@ -38,8 +38,8 @@ require (
 	github.com/reiver/go-calltrace v0.0.0-20251216205616-3931a8c7b154 // indirect
 	github.com/reiver/go-erorr v0.0.0-20240801233437-8cbde6d1fa3f // indirect
 	github.com/reiver/go-iri v0.0.0-20260228082703-3742ee4a9c2d // indirect
-	github.com/reiver/go-json v0.0.0-20260126113356-12b7c2d78b6a // indirect
-	github.com/reiver/go-jsonint v0.0.0-20241119162208-a71145908f18 // indirect
+	github.com/reiver/go-json v0.0.0-20260304223135-0a7e5ede4c60 // indirect
+	github.com/reiver/go-jsonint v0.0.0-20260305120820-b845121c98e8 // indirect
 	github.com/reiver/go-jsonld v0.0.0-20250611053742-8fec84a9f5f8 // indirect
 	github.com/reiver/go-jsonstr v0.0.0-20240802000653-a5a8363975f1 // indirect
 	github.com/reiver/go-lck v0.0.0-20250904175207-b06db1642fd1 // indirect
