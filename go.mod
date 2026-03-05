@@ -11,7 +11,7 @@ require (
 	codeberg.org/reiver/go-webfinger v0.0.0-20250820134928-2b92f35f4d2e
 	github.com/ClickHouse/clickhouse-go/v2 v2.43.0
 	github.com/reiver/go-errhttp v1.1.1-0.20240827033330-e4ea888843cc
-	github.com/reiver/go-etag v0.0.0-20241130123934-1a98d29fda6e
+	github.com/reiver/go-etag v0.0.0-20250903181826-2dad0e6b76a9
 	github.com/reiver/go-http404 v0.0.0-20260303090244-0bf7e6f73f9f
 	github.com/reiver/go-http500 v0.0.0-20250531141625-af98f83e19aa
 	github.com/reiver/go-mstdn v0.0.0-20260305121006-f522aacedc37
@@ -35,7 +35,7 @@ require (
 	github.com/klauspost/compress v1.18.3 // indirect
 	github.com/paulmach/orb v0.12.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.25 // indirect
-	github.com/reiver/go-calltrace v0.0.0-20251216205616-3931a8c7b154 // indirect
+	github.com/reiver/go-calltrace v0.0.0-20251217043535-394ea5ae65a7 // indirect
 	github.com/reiver/go-erorr v0.0.0-20240801233437-8cbde6d1fa3f // indirect
 	github.com/reiver/go-iri v0.0.0-20260228082703-3742ee4a9c2d // indirect
 	github.com/reiver/go-json v0.0.0-20260304223135-0a7e5ede4c60 // indirect
