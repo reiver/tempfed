@@ -3,8 +3,10 @@ package verboten
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"flag"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 
 	"codeberg.org/reiver/go-field/stringly"
@@ -18,6 +20,11 @@ import (
 const path string = "/"
 
 func init() {
+	// Skip this if we are running inside of a Go test.
+	if nil != flag.Lookup("test.v") || strings.HasSuffix(os.Args[0], ".test") {
+		return
+	}
+
 	var handler http.Handler = http.HandlerFunc(serveHTTP)
 
 	err := httpsrv.Mux.HandlePath(handler, path)

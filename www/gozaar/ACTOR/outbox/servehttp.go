@@ -1,9 +1,12 @@
 package verboten
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"codeberg.org/reiver/go-asns"
@@ -26,6 +29,11 @@ const pattern string = "/gozaar/{actorname}/outbox"
 const pageSize int = 20
 
 func init() {
+	// Skip this if we are running inside of a Go test.
+	if nil != flag.Lookup("test.v") || strings.HasSuffix(os.Args[0], ".test") {
+		return
+	}
+
 	var handler pathmux.PatternHandler = pathmux.PatternHandlerFunc(serveHTTP)
 
 	err := httpsrv.Mux.HandlePattern(handler, pattern)

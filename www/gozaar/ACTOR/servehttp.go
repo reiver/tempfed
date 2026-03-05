@@ -1,7 +1,10 @@
 package verboten
 
 import (
+	"flag"
 	"net/http"
+	"os"
+	"strings"
 
 	"codeberg.org/reiver/go-asns"
 	"codeberg.org/reiver/go-field/stringly"
@@ -19,6 +22,11 @@ import (
 const pattern string = "/gozaar/{actorname}"
 
 func init() {
+	// Skip this if we are running inside of a Go test.
+	if nil != flag.Lookup("test.v") || strings.HasSuffix(os.Args[0], ".test") {
+		return
+	}
+
 	var handler pathmux.PatternHandler = pathmux.PatternHandlerFunc(serveHTTP)
 
 	err := httpsrv.Mux.HandlePattern(handler, pattern)

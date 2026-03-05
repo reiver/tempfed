@@ -2,7 +2,10 @@ package verboten
 
 import (
 	"errors"
+	"flag"
 	"net/http"
+	"os"
+	"strings"
 
 	"codeberg.org/reiver/go-accturi"
 	"codeberg.org/reiver/go-field/stringly"
@@ -19,6 +22,11 @@ import (
 const path string = webfinger.DefaultPath // "/.well-known/webfinger"
 
 func init() {
+	// Skip this if we are running inside of a Go test.
+	if nil != flag.Lookup("test.v") || strings.HasSuffix(os.Args[0], ".test") {
+		return
+	}
+
 	var webFingerHandler webfinger.Handler = webfinger.HandlerFunc(serveWebFinger)
 	var handler http.Handler = webfinger.HTTPHandler(webFingerHandler)
 

@@ -18,7 +18,7 @@ var Conn driver.Conn
 
 func init() {
 	// If we are running inside of a Go test, don't connect to the database.
-	if flag.Lookup("test.v") != nil || strings.HasSuffix(os.Args[0], ".test") {
+	if nil != flag.Lookup("test.v") || strings.HasSuffix(os.Args[0], ".test") {
 		return
 	}
 
