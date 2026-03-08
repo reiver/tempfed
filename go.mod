@@ -4,7 +4,7 @@ go 1.25.4
 
 require (
 	codeberg.org/reiver/go-accturi v0.0.0-20260228212744-2bfbf7eb4058
-	codeberg.org/reiver/go-asns v0.0.0-20260305132014-1df25b94cec3
+	codeberg.org/reiver/go-asns v0.0.0-20260306160424-67e3a745534f
 	codeberg.org/reiver/go-env v0.0.0-20260226035230-655ebf3f05e0
 	codeberg.org/reiver/go-field v0.0.0-20260227064035-785b2523cffa
 	codeberg.org/reiver/go-log v0.0.0-20260227064209-50f2d4a70ab8
@@ -38,7 +38,7 @@ require (
 	github.com/reiver/go-calltrace v0.0.0-20251217043535-394ea5ae65a7 // indirect
 	github.com/reiver/go-erorr v0.0.0-20240801233437-8cbde6d1fa3f // indirect
 	github.com/reiver/go-iri v0.0.0-20260228082703-3742ee4a9c2d // indirect
-	github.com/reiver/go-json v0.0.0-20260304223135-0a7e5ede4c60 // indirect
+	github.com/reiver/go-json v0.0.0-20260306160333-8285682dd9de // indirect
 	github.com/reiver/go-jsonint v0.0.0-20260305120820-b845121c98e8 // indirect
 	github.com/reiver/go-jsonld v0.0.0-20250611053742-8fec84a9f5f8 // indirect
 	github.com/reiver/go-jsonstr v0.0.0-20240802000653-a5a8363975f1 // indirect
