@@ -4,7 +4,7 @@ go 1.25.4
 
 require (
 	codeberg.org/reiver/go-accturi v0.0.0-20260228212744-2bfbf7eb4058
-	codeberg.org/reiver/go-asns v0.0.0-20260306160424-67e3a745534f
+	codeberg.org/reiver/go-asns v0.0.0-20260309052603-487c8dcf3fd8
 	codeberg.org/reiver/go-env v0.0.0-20260226035230-655ebf3f05e0
 	codeberg.org/reiver/go-field v0.0.0-20260227064035-785b2523cffa
 	codeberg.org/reiver/go-log v0.0.0-20260227064209-50f2d4a70ab8
@@ -14,7 +14,8 @@ require (
 	github.com/reiver/go-etag v0.0.0-20250903181826-2dad0e6b76a9
 	github.com/reiver/go-http404 v0.0.0-20260303090244-0bf7e6f73f9f
 	github.com/reiver/go-http500 v0.0.0-20250531141625-af98f83e19aa
-	github.com/reiver/go-mstdn v0.0.0-20260305121006-f522aacedc37
+	github.com/reiver/go-mstdn v0.0.0-20260309053617-7b09691f206c
+	github.com/reiver/go-nul v0.0.0-20260309043606-3c1893100dc2
 	github.com/reiver/go-opt v0.0.0-20240809035328-1ff08dec9bc4
 	github.com/reiver/go-pathmux v0.0.0-20260303220105-af405f418851
 )
@@ -43,7 +44,6 @@ require (
 	github.com/reiver/go-jsonld v0.0.0-20250611053742-8fec84a9f5f8 // indirect
 	github.com/reiver/go-jsonstr v0.0.0-20240802000653-a5a8363975f1 // indirect
 	github.com/reiver/go-lck v0.0.0-20250904175207-b06db1642fd1 // indirect
-	github.com/reiver/go-nul v0.0.0-20260226004802-f87085371089 // indirect
 	github.com/reiver/go-path v0.0.0-20240327181650-5f2ee05890d8 // indirect
 	github.com/reiver/go-pathmatch v1.0.1-0.20240802004530-0dc31d85afa8 // indirect
 	github.com/reiver/go-rfc2234 v0.0.0-20240824134608-874192441e79 // indirect
