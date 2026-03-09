@@ -10,6 +10,7 @@ import (
 	"codeberg.org/reiver/go-field/stringly"
 	"github.com/reiver/go-http404"
 	"github.com/reiver/go-http500"
+	"github.com/reiver/go-nul"
 	"github.com/reiver/go-opt"
 	"github.com/reiver/go-pathmux"
 
@@ -71,7 +72,7 @@ func serveHTTP(responseWriter http.ResponseWriter, request *pathmux.Parameterize
 
 		var (
 			name    opt.Optional[string] = opt.Something(actorName)
-			summary opt.Optional[string] = opt.Something("Search for: " + actorName)
+			summary nul.Nullable[string] = nul.Something("Search for: " + actorName)
 		)
 
 		var service = asns.Service{
