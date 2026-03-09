@@ -15,6 +15,9 @@ avatar images,
 header images,
 etc.
 
+A way to deal with this problem is to move the caching of dats from other servers somewhere else.
+And, get that cached data from there.
+
 **tempfed** tries to address part of this problem
 —
 by providing a service (to Fediverse and Social Web servers) that stores **posts** for a _short_ period of time.
@@ -22,8 +25,10 @@ by providing a service (to Fediverse and Social Web servers) that stores **posts
 (In this context, "posts" being the different ActivityPub `Object` and `Link` types
 —
 such as:
+`Announce`,
 `Article`,
 `Audio`,
+`Create`,
 `Document`,
 `Event`,
 `Image`,
@@ -43,6 +48,13 @@ Here are some example of how Fediverse and Social Web servers could use **tempfe
 * a social-media application could get the post data for a user's home-feed from **tempfed**
 * a custom feed service might get the post data from **tempfed**
 * a social-media application that allows its user to search posts might get the post data from **tempfed**
+
+## Protocols
+
+It accepts posts in 2 different ways:
+
+* via an ActivityPub **instance actor**'s `/inbox`, and
+* by subscribing to Mastodon-compatible SSE (server-send events).
 
 ## Author
 
