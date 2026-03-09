@@ -4,7 +4,7 @@ go 1.25.4
 
 require (
 	codeberg.org/reiver/go-accturi v0.0.0-20260228212744-2bfbf7eb4058
-	codeberg.org/reiver/go-asns v0.0.0-20260309052603-487c8dcf3fd8
+	codeberg.org/reiver/go-asns v0.0.0-20260309055807-0a9f8a9261fc
 	codeberg.org/reiver/go-env v0.0.0-20260226035230-655ebf3f05e0
 	codeberg.org/reiver/go-field v0.0.0-20260227064035-785b2523cffa
 	codeberg.org/reiver/go-log v0.0.0-20260227064209-50f2d4a70ab8
