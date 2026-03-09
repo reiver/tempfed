@@ -11,6 +11,7 @@ import (
 	"codeberg.org/reiver/go-log"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/reiver/go-mstdn/api/v1/streaming/public"
+	"github.com/reiver/go-nul"
 	"github.com/reiver/go-opt"
 )
 
@@ -149,11 +150,11 @@ func Accept(ctx context.Context, logger log.Logger, host string, conn driver.Con
 		err = batch.Append(
 			note.ID.GetElse(""),
 			[]string{"Note"},
-			nullableStr(note.Name),
-			nullableStr(note.Summary),
-			nullableStr(note.Content),
-			nullableStr(note.MediaType),
-			nullableStr(note.URL),
+			nullableStrFromOptional(note.Name),
+			nullableStrFromNullable(note.Summary),
+			nullableStrFromOptional(note.Content),
+			nullableStrFromOptional(note.MediaType),
+			nullableStrFromOptional(note.URL),
 			note.AttributedTo.Strings(),
 			note.To.Strings(),
 			note.CC.Strings(),
@@ -162,11 +163,11 @@ func Accept(ctx context.Context, logger log.Logger, host string, conn driver.Con
 			nullableTime(note.Updated),
 			nullableTime(note.StartTime),
 			nullableTime(note.EndTime),
-			nullableStr(note.Duration),
+			nullableStrFromOptional(note.Duration),
 			tagNames,
 			note.InReplyTo.Strings(),
 			note.AlsoKnownAs.Strings(),
-			nullableStr(note.MovedTo),
+			nullableStrFromOptional(note.MovedTo),
 		)
 		if nil != err {
 			log.Error(
@@ -251,7 +252,15 @@ func flush(ctx context.Context, log log.Logger, conn driver.Conn, batch driver.B
 	return newBatch, 0, time.Now(), sendOK
 }
 
-func nullableStr(o opt.Optional[string]) *string {
+func nullableStrFromOptional(o opt.Optional[string]) *string {
+	v, ok := o.Get()
+	if !ok {
+		return nil
+	}
+	return &v
+}
+
+func nullableStrFromNullable(o nul.Nullable[string]) *string {
 	v, ok := o.Get()
 	if !ok {
 		return nil
