@@ -15,6 +15,7 @@ import (
 	"github.com/reiver/go-http404"
 	"github.com/reiver/go-http500"
 	"github.com/reiver/go-opt"
+	"github.com/reiver/go-nul"
 	"github.com/reiver/go-pathmux"
 
 	"tempfed/lib/actors"
@@ -134,9 +135,9 @@ func serveCollection(responseWriter http.ResponseWriter, request *pathmux.Parame
 
 	var collection = asns.OrderedCollection{
 		ID:         opt.Something(outboxURL),
-		TotalItems: opt.Something(count),
-		First:      opt.Something(fmt.Sprintf("%s?page=1", outboxURL)),            //@TODO: construct URL in safer way
-		Last:       opt.Something(fmt.Sprintf("%s?page=%d", outboxURL, lastPage)), //@TODO: construct URL in safer way
+		TotalItems: nul.Something(asns.WholeNumber(uint64(count))),
+		First:      asns.HRef(fmt.Sprintf("%s?page=1", outboxURL)),            //@TODO: construct URL in safer way
+		Last:       asns.HRef(fmt.Sprintf("%s?page=%d", outboxURL, lastPage)), //@TODO: construct URL in safer way
 	}
 
 	bytes, err := asns.Marshal(collection)
@@ -249,11 +250,11 @@ func servePage(responseWriter http.ResponseWriter, request *pathmux.Parameterize
 		obj := asns.AnyObject{
 			ID:           opt.Something(asID),
 //@TODO: Tyoe
-			Name:         optFromPtr(asName),
-			Summary:      optFromPtr(asSummary),
-			Content:      optFromPtr(asContent),
-			MediaType:    optFromPtr(asMediaType),
-			URL:          optFromPtr(asURL),
+			Name:         optFromPtrFromOptional(asName),
+			Summary:      optFromPtrFromNullable(asSummary),
+			Content:      optFromPtrFromOptional(asContent),
+			MediaType:    optFromPtrFromOptional(asMediaType),
+			URL:          optFromPtrFromOptional(asURL),
 			AttributedTo: asns.SomeStrings(asAttributedTo...),
 			To:           asns.SomeStrings(asTo...),
 			CC:           asns.SomeStrings(asCC...),
@@ -262,10 +263,10 @@ func servePage(responseWriter http.ResponseWriter, request *pathmux.Parameterize
 			Updated:      optTimeToString(asUpdated),
 			StartTime:    optTimeToString(asStartTime),
 			EndTime:      optTimeToString(asEndTime),
-			Duration:     optFromPtr(asDuration),
+			Duration:     optFromPtrFromOptional(asDuration),
 			InReplyTo:    asns.SomeStrings(asInReplyTo...),
 			AlsoKnownAs:  asns.SomeStrings(asAlsoKnownAs...),
-			MovedTo:      optFromPtr(asMovedTo),
+			MovedTo:      optFromPtrFromOptional(asMovedTo),
 		}
 
 		orderedItems = append(orderedItems, obj)
@@ -306,7 +307,14 @@ func servePage(responseWriter http.ResponseWriter, request *pathmux.Parameterize
 	asns.ServeHTTP(responseWriter, request.HTTPRequest(), bytes)
 }
 
-func optFromPtr(p *string) opt.Optional[string] {
+func optFromPtrFromNullable(p *string) nul.Nullable[string] {
+	if nil == p {
+		return nul.Nothing[string]()
+	}
+	return nul.Something(*p)
+}
+
+func optFromPtrFromOptional(p *string) opt.Optional[string] {
 	if nil == p {
 		return opt.Nothing[string]()
 	}
