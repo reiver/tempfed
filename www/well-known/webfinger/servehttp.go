@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"codeberg.org/reiver/go-accturi"
-	"codeberg.org/reiver/go-field/stringly"
+	"codeberg.org/reiver/go-field"
 	"codeberg.org/reiver/go-webfinger"
 	"github.com/reiver/go-errhttp"
 	"github.com/reiver/go-opt"
@@ -37,7 +37,7 @@ func init() {
 }
 
 func serveWebFinger(resource string, rels ...string) ([]byte, error) {
-	log := logsrv.Begin(stringly.String("www.path", path))
+	log := logsrv.Begin(field.String("www.path", path))
 	defer log.End()
 
 	{
@@ -60,12 +60,12 @@ func serveWebFinger(resource string, rels ...string) ([]byte, error) {
 }
 
 func serveActorHost(resource string, actor string, host string) ([]byte, error) {
-	log := logsrv.Begin(stringly.String("www.path", path))
+	log := logsrv.Begin(field.String("www.path", path))
 	defer log.End()
 
 	log.Trace(
-		stringly.String("actor", actor),
-		stringly.String("host", host),
+		field.String("actor", actor),
+		field.String("host", host),
 	)
 
 	if !libactors.IsValidUserName(actor) {
@@ -79,8 +79,8 @@ func serveActorHost(resource string, actor string, host string) ([]byte, error) 
 		outbox string = librefs.ActorOutBox(host, actor)
 	)
 	log.Trace(
-		stringly.String("JRD-self", self),
-		stringly.String("JRD-outbox", outbox),
+		field.String("JRD-self", self),
+		field.String("JRD-outbox", outbox),
 	)
 
 	// Return JRD (JSON Resource Descriptor) document,

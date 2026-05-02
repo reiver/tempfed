@@ -5,7 +5,7 @@ import (
 	"math/rand/v2"
 	"time"
 
-	"codeberg.org/reiver/go-field/stringly"
+	"codeberg.org/reiver/go-field"
 	"codeberg.org/reiver/go-log"
 )
 
@@ -40,9 +40,9 @@ func KeepAlive(ctx context.Context, logger log.Logger, name string, fn func()) {
 		actualDelay := time.Duration(float64(delay) * (1.0 + jitter*(2.0*rand.Float64()-1.0)))
 
 		log.Warn(
-			stringly.String("", "backoff keep-alive stopped, retrying"),
-			stringly.String("name", name),
-			stringly.String("delay", actualDelay.String()),
+			field.String("", "backoff keep-alive stopped, retrying"),
+			field.String("name", name),
+			field.String("delay", actualDelay.String()),
 		)
 
 		select {

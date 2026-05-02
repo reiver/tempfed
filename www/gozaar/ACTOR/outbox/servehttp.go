@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"codeberg.org/reiver/go-asns"
-	"codeberg.org/reiver/go-field/stringly"
+	"codeberg.org/reiver/go-activitypub"
+	"codeberg.org/reiver/go-field"
 	"codeberg.org/reiver/go-log"
 	"github.com/reiver/go-http404"
 	"github.com/reiver/go-http500"
@@ -44,26 +44,26 @@ func init() {
 }
 
 func serveHTTP(responseWriter http.ResponseWriter, request *pathmux.ParameterizedRequest) {
-	logger := logsrv.Begin(stringly.String("www.pattern", pattern))
+	logger := logsrv.Begin(field.String("www.pattern", pattern))
 	defer logger.End()
 
 	if nil == responseWriter {
-		logger.Error(stringly.S("nil HTTP response-writer"))
+		logger.Error(field.S("nil HTTP response-writer"))
 		return
 	}
 	if nil == request {
 		http500.InternalServerError(responseWriter, nil)
-		logger.Error(stringly.S("nil HTTP path-mux request"))
+		logger.Error(field.S("nil HTTP path-mux request"))
 		return
 	}
 
 	actorName, found := request.ParameterByIndex(0)
 	if !found {
 		http500.InternalServerError(responseWriter, request.HTTPRequest())
-		logger.Error(stringly.S("missing 'actorname' (this should never happen)"))
+		logger.Error(field.S("missing 'actorname' (this should never happen)"))
 		return
 	}
-	logger.Trace(stringly.String("actor-name", actorName))
+	logger.Trace(field.String("actor-name", actorName))
 
 
 	var keyword string
@@ -71,24 +71,24 @@ func serveHTTP(responseWriter http.ResponseWriter, request *pathmux.Parameterize
 		serviceName, parameter, split := libactors.Split(actorName)
 		if !split {
 			http404.NotFound(responseWriter, request.HTTPRequest())
-			logger.Error(stringly.S("not found because invalid actor user-name"))
+			logger.Error(field.S("not found because invalid actor user-name"))
 			return
 		}
 
 		logger.Trace(
-			stringly.String("service-name", serviceName),
-			stringly.String("parameter", parameter),
+			field.String("service-name", serviceName),
+			field.String("parameter", parameter),
 		)
 
 		keyword = parameter
 	}
-	logger.Trace(stringly.String("keyword", keyword))
+	logger.Trace(field.String("keyword", keyword))
 
 	var host string = request.HTTPRequest().Host
 	var outboxURL string = librefs.ActorOutBox(host, actorName)
 
 	pageParam := request.HTTPRequest().URL.Query().Get("page")
-	logger.Trace(stringly.String("page", pageParam))
+	logger.Trace(field.String("page", pageParam))
 
 	switch {
 	case "" == pageParam :
@@ -119,8 +119,8 @@ func serveCollection(responseWriter http.ResponseWriter, request *pathmux.Parame
 	if nil != err {
 		http500.InternalServerError(responseWriter, request.HTTPRequest())
 		logger.Error(
-			stringly.S("failed to query count from ClickHouse"),
-			stringly.E(err),
+			field.S("failed to query count from ClickHouse"),
+			field.String("error", err.Error()),
 		)
 		return
 	}
@@ -133,24 +133,26 @@ func serveCollection(responseWriter http.ResponseWriter, request *pathmux.Parame
 		lastPage = 1
 	}
 
-	var collection = asns.OrderedCollection{
-		ID:         opt.Something(outboxURL),
-		TotalItems: nul.Something(asns.WholeNumber(uint64(count))),
-		First:      asns.HRef(fmt.Sprintf("%s?page=1", outboxURL)),            //@TODO: construct URL in safer way
-		Last:       asns.HRef(fmt.Sprintf("%s?page=%d", outboxURL, lastPage)), //@TODO: construct URL in safer way
+	var collection = activitypub.OrderedCollection{
+		ID: opt.Something(outboxURL),
+		CoreCollection: activitypub.CoreCollection{
+			TotalItems: nul.Something(activitypub.WholeNumber(uint64(count))),
+			First:      activitypub.HRef(fmt.Sprintf("%s?page=1", outboxURL)),            //@TODO: construct URL in safer way
+			Last:       activitypub.HRef(fmt.Sprintf("%s?page=%d", outboxURL, lastPage)), //@TODO: construct URL in safer way
+		},
 	}
 
-	bytes, err := asns.Marshal(collection)
+	bytes, err := activitypub.Marshal(collection)
 	if nil != err {
 		http500.InternalServerError(responseWriter, request.HTTPRequest())
 		logger.Error(
-			stringly.S("failed to jsonld-marshal OrderedCollection"),
-			stringly.E(err),
+			field.S("failed to jsonld-marshal OrderedCollection"),
+			field.String("error", err.Error()),
 		)
 		return
 	}
 
-	asns.ServeHTTP(responseWriter, request.HTTPRequest(), bytes)
+	activitypub.ServeHTTP(responseWriter, request.HTTPRequest(), bytes)
 }
 
 func servePage(responseWriter http.ResponseWriter, request *pathmux.ParameterizedRequest, logger log.Logger, keyword string, outboxURL string, page int) {
@@ -167,8 +169,8 @@ func servePage(responseWriter http.ResponseWriter, request *pathmux.Parameterize
 	if nil != err {
 		http500.InternalServerError(responseWriter, request.HTTPRequest())
 		logger.Error(
-			stringly.S("failed to query count from ClickHouse"),
-			stringly.E(err),
+			field.S("failed to query count from ClickHouse"),
+			field.String("error", err.Error()),
 		)
 		return
 	}
@@ -198,8 +200,8 @@ func servePage(responseWriter http.ResponseWriter, request *pathmux.Parameterize
 	if nil != err {
 		http500.InternalServerError(responseWriter, request.HTTPRequest())
 		logger.Error(
-			stringly.S("failed to query data_nodes from ClickHouse"),
-			stringly.E(err),
+			field.S("failed to query data_nodes from ClickHouse"),
+			field.String("error", err.Error()),
 		)
 		return
 	}
@@ -241,32 +243,36 @@ func servePage(responseWriter http.ResponseWriter, request *pathmux.Parameterize
 		if nil != err {
 			http500.InternalServerError(responseWriter, request.HTTPRequest())
 			logger.Error(
-				stringly.S("failed to scan row from ClickHouse"),
-				stringly.E(err),
+				field.S("failed to scan row from ClickHouse"),
+				field.String("error", err.Error()),
 			)
 			return
 		}
 
-		obj := asns.AnyObject{
+		obj := activitypub.AnyObject{
 			ID:           opt.Something(asID),
 //@TODO: Tyoe
-			Name:         optFromPtrFromOptional(asName),
-			Summary:      optFromPtrFromNullable(asSummary),
-			Content:      optFromPtrFromOptional(asContent),
-			MediaType:    optFromPtrFromOptional(asMediaType),
-			URL:          optFromPtrFromOptional(asURL),
-			AttributedTo: asns.SomeStrings(asAttributedTo...),
-			To:           asns.SomeStrings(asTo...),
-			CC:           asns.SomeStrings(asCC...),
-			Audiences:    asns.SomeStrings(asAudience...),
-			Published:    optTimeToString(asPublished),
-			Updated:      optTimeToString(asUpdated),
-			StartTime:    optTimeToString(asStartTime),
-			EndTime:      optTimeToString(asEndTime),
-			Duration:     optFromPtrFromOptional(asDuration),
-			InReplyTo:    asns.SomeStrings(asInReplyTo...),
-			AlsoKnownAs:  asns.SomeStrings(asAlsoKnownAs...),
-			MovedTo:      optFromPtrFromOptional(asMovedTo),
+			CoreEntity: activitypub.CoreEntity{
+				Name: optFromPtrFromOptional(asName),
+			},
+			CoreObject: activitypub.CoreObject{
+				Summary:      optFromPtrFromNullable(asSummary),
+				Content:      optFromPtrFromOptional(asContent),
+				MediaType:    optFromPtrFromOptional(asMediaType),
+				URL:          optFromPtrFromOptional(asURL),
+				AttributedTo: stringsToObjectIDs(asAttributedTo),
+				To:           activitypub.SomeStrings(asTo...),
+				CC:           activitypub.SomeStrings(asCC...),
+				Audiences:    stringsToObjectIDs(asAudience),
+				Published:    optTimeToString(asPublished),
+				Updated:      optTimeToString(asUpdated),
+				StartTime:    optTimeToString(asStartTime),
+				EndTime:      optTimeToString(asEndTime),
+				Duration:     optFromPtrFromOptional(asDuration),
+				InReplyTo:    activitypub.SomeStrings(asInReplyTo...),
+				AlsoKnownAs:  activitypub.SomeStrings(asAlsoKnownAs...),
+				MovedTo:      optFromPtrFromOptional(asMovedTo),
+			},
 		}
 
 		orderedItems = append(orderedItems, obj)
@@ -275,36 +281,40 @@ func servePage(responseWriter http.ResponseWriter, request *pathmux.Parameterize
 	if nil != rows.Err() {
 		http500.InternalServerError(responseWriter, request.HTTPRequest())
 		logger.Error(
-			stringly.S("error iterating ClickHouse rows"),
-			stringly.E(rows.Err()),
+			field.S("error iterating ClickHouse rows"),
+			field.String("error", rows.Err().Error()),
 		)
 		return
 	}
 
-	collectionPage := asns.OrderedCollectionPage{
-		ID:           opt.Something(fmt.Sprintf("%s?page=%d", outboxURL, page)),
-		PartOf:       opt.Something(outboxURL),
-		OrderedItems: orderedItems,
+	collectionPage := activitypub.OrderedCollectionPage{
+		ID: opt.Something(fmt.Sprintf("%s?page=%d", outboxURL, page)),
+		CoreCollectionPage: activitypub.CoreCollectionPage{
+			PartOf: activitypub.HRef(outboxURL),
+		},
+		CoreOrderedCollection: activitypub.CoreOrderedCollection{
+			OrderedItems: orderedItems,
+		},
 	}
 
 	if page > 1 {
-		collectionPage.Prev = opt.Something(fmt.Sprintf("%s?page=%d", outboxURL, page-1))
+		collectionPage.Prev = activitypub.HRef(fmt.Sprintf("%s?page=%d", outboxURL, page-1))
 	}
 	if page < lastPage {
-		collectionPage.Next = opt.Something(fmt.Sprintf("%s?page=%d", outboxURL, page+1))
+		collectionPage.Next = activitypub.HRef(fmt.Sprintf("%s?page=%d", outboxURL, page+1))
 	}
 
-	bytes, err := asns.Marshal(collectionPage)
+	bytes, err := activitypub.Marshal(collectionPage)
 	if nil != err {
 		http500.InternalServerError(responseWriter, request.HTTPRequest())
 		logger.Error(
-			stringly.S("failed to jsonld-marshal OrderedCollectionPage"),
-			stringly.E(err),
+			field.S("failed to jsonld-marshal OrderedCollectionPage"),
+			field.String("error", err.Error()),
 		)
 		return
 	}
 
-	asns.ServeHTTP(responseWriter, request.HTTPRequest(), bytes)
+	activitypub.ServeHTTP(responseWriter, request.HTTPRequest(), bytes)
 }
 
 func optFromPtrFromNullable(p *string) nul.Nullable[string] {
@@ -326,4 +336,12 @@ func optTimeToString(p *time.Time) opt.Optional[string] {
 		return opt.Nothing[string]()
 	}
 	return opt.Something(p.Format(time.RFC3339))
+}
+
+func stringsToObjectIDs(ss []string) []activitypub.ProtoObjectOrProtoLink {
+	var result []activitypub.ProtoObjectOrProtoLink
+	for _, s := range ss {
+		result = append(result, activitypub.ObjectID(s))
+	}
+	return result
 }

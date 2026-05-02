@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"codeberg.org/reiver/go-asns"
-	"codeberg.org/reiver/go-field/stringly"
+	"codeberg.org/reiver/go-activitypub"
+	"codeberg.org/reiver/go-field"
 	"codeberg.org/reiver/go-log"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/reiver/go-mstdn/api/v1/streaming/public"
@@ -31,9 +31,9 @@ func Accept(ctx context.Context, logger log.Logger, host string, conn driver.Con
 	client, err := public.DialHost(host)
 	if nil != err {
 		log.Error(
-			stringly.String("", "failed to connect to mstdn server"),
-			stringly.String("host", host),
-			stringly.Error("error", err),
+			field.String("", "failed to connect to mstdn server"),
+			field.String("host", host),
+			field.String("error", err.Error()),
 		)
 		return
 	}
@@ -41,8 +41,8 @@ func Accept(ctx context.Context, logger log.Logger, host string, conn driver.Con
 		err := client.Close()
 		if nil != err {
 			log.Error(
-				stringly.String("", "failed to close mstdn local stream"),
-				stringly.Error("error", err),
+				field.String("", "failed to close mstdn local stream"),
+				field.String("error", err.Error()),
 			)
 		}
 	}()
@@ -50,8 +50,8 @@ func Accept(ctx context.Context, logger log.Logger, host string, conn driver.Con
 	batch, err := conn.PrepareBatch(ctx, insertSQL)
 	if nil != err {
 		log.Error(
-			stringly.String("", "failed to prepare batch"),
-			stringly.Error("error", err),
+			field.String("", "failed to prepare batch"),
+			field.String("error", err.Error()),
 		)
 		return
 	}
@@ -75,12 +75,12 @@ func Accept(ctx context.Context, logger log.Logger, host string, conn driver.Con
 			return
 		}
 		log.Inform(
-			stringly.String("", "stats"),
-			stringly.String("host", host),
-			stringly.String("received", fmt.Sprintf("%d", postsReceived)),
-			stringly.String("inserted", fmt.Sprintf("%d", postsInserted)),
-			stringly.String("dropped", fmt.Sprintf("%d", postsDropped)),
-			stringly.String("batches", fmt.Sprintf("%d", batchesFlushed)),
+			field.String("", "stats"),
+			field.String("host", host),
+			field.String("received", fmt.Sprintf("%d", postsReceived)),
+			field.String("inserted", fmt.Sprintf("%d", postsInserted)),
+			field.String("dropped", fmt.Sprintf("%d", postsDropped)),
+			field.String("batches", fmt.Sprintf("%d", batchesFlushed)),
 		)
 		totalReceived += postsReceived
 		totalInserted += postsInserted
@@ -105,15 +105,15 @@ func Accept(ctx context.Context, logger log.Logger, host string, conn driver.Con
 		err := client.Decode(&event)
 		if nil != err {
 			log.Error(
-				stringly.String("", "failed to decode event"),
-				stringly.Error("error", err),
+				field.String("", "failed to decode event"),
+				field.String("error", err.Error()),
 			)
 			postsDropped++
 			logStats()
 			continue
 		}
 
-		var note asns.Note
+		var note activitypub.Note
 		err = event.Status.ActivityNote(&note)
 		if nil != err {
 			postsDropped++
@@ -122,19 +122,19 @@ func Accept(ctx context.Context, logger log.Logger, host string, conn driver.Con
 		}
 
 		logger.Trace(
-			stringly.String("event.Name", event.Name),
-			stringly.String("event.Status.ID", event.Status.ID.GetElse("")),
-			stringly.String("event.Status.CreatedAt", event.Status.CreatedAt.GetElse("")),
-			stringly.String("event.Status.URL", event.Status.URL.GetElse("")),
-			stringly.String("event.Status.URI", event.Status.URI.GetElse("")),
-			stringly.String("note.ID", note.ID.GetElse("")),
-			stringly.String("note.AttributedTo", strings.Join(note.AttributedTo.Strings(), ", ")),
-			stringly.String("note.Content", note.Content.GetElse("")),
+			field.String("event.Name", event.Name),
+			field.String("event.Status.ID", event.Status.ID.GetElse("")),
+			field.String("event.Status.CreatedAt", event.Status.CreatedAt.GetElse("")),
+			field.String("event.Status.URL", event.Status.URL.GetElse("")),
+			field.String("event.Status.URI", event.Status.URI.GetElse("")),
+			field.String("note.ID", note.ID.GetElse("")),
+			field.String("note.AttributedTo", strings.Join(stringifySlice(note.AttributedTo), ", ")),
+			field.String("note.Content", note.Content.GetElse("")),
 		)
 
 		var tagNames []string
 		for _, tag := range note.Tags {
-			hashtag, casted := tag.(asns.HashTag)
+			hashtag, casted := tag.(activitypub.HashTag)
 			if !casted {
 				continue
 			}
@@ -155,10 +155,10 @@ func Accept(ctx context.Context, logger log.Logger, host string, conn driver.Con
 			nullableStrFromOptional(note.Content),
 			nullableStrFromOptional(note.MediaType),
 			nullableStrFromOptional(note.URL),
-			note.AttributedTo.Strings(),
+			stringifySlice(note.AttributedTo),
 			note.To.Strings(),
 			note.CC.Strings(),
-			note.Audiences.Strings(),
+			stringifySlice(note.Audiences),
 			nullableTime(note.Published),
 			nullableTime(note.Updated),
 			nullableTime(note.StartTime),
@@ -171,8 +171,8 @@ func Accept(ctx context.Context, logger log.Logger, host string, conn driver.Con
 		)
 		if nil != err {
 			log.Error(
-				stringly.String("", "failed to append row"),
-				stringly.Error("error", err),
+				field.String("", "failed to append row"),
+				field.String("error", err.Error()),
 			)
 			postsDropped++
 			logStats()
@@ -214,18 +214,18 @@ func Accept(ctx context.Context, logger log.Logger, host string, conn driver.Con
 	totalDropped += postsDropped
 	totalBatches += batchesFlushed
 	log.Inform(
-		stringly.String("", "total-stats"),
-		stringly.String("host", host),
-		stringly.String("received", fmt.Sprintf("%d", totalReceived)),
-		stringly.String("inserted", fmt.Sprintf("%d", totalInserted)),
-		stringly.String("dropped", fmt.Sprintf("%d", totalDropped)),
-		stringly.String("batches", fmt.Sprintf("%d", totalBatches)),
+		field.String("", "total-stats"),
+		field.String("host", host),
+		field.String("received", fmt.Sprintf("%d", totalReceived)),
+		field.String("inserted", fmt.Sprintf("%d", totalInserted)),
+		field.String("dropped", fmt.Sprintf("%d", totalDropped)),
+		field.String("batches", fmt.Sprintf("%d", totalBatches)),
 	)
 
 	if err := client.Err(); nil != err {
 		log.Error(
-			stringly.String("", "post-stream error"),
-			stringly.Error("error", err),
+			field.String("", "post-stream error"),
+			field.String("error", err.Error()),
 		)
 	}
 }
@@ -234,8 +234,8 @@ func flush(ctx context.Context, log log.Logger, conn driver.Conn, batch driver.B
 	err := batch.Send()
 	if nil != err {
 		log.Error(
-			stringly.String("", "failed to send batch"),
-			stringly.Error("error", err),
+			field.String("", "failed to send batch"),
+			field.String("error", err.Error()),
 		)
 	}
 	sendOK := nil == err
@@ -243,13 +243,23 @@ func flush(ctx context.Context, log log.Logger, conn driver.Conn, batch driver.B
 	newBatch, err := conn.PrepareBatch(ctx, insertSQL)
 	if nil != err {
 		log.Error(
-			stringly.String("", "failed to prepare batch"),
-			stringly.Error("error", err),
+			field.String("", "failed to prepare batch"),
+			field.String("error", err.Error()),
 		)
 		return batch, 0, time.Now(), sendOK
 	}
 
 	return newBatch, 0, time.Now(), sendOK
+}
+
+func stringifySlice(items []activitypub.ProtoObjectOrProtoLink) []string {
+	var result []string
+	for _, item := range items {
+		if s, ok := item.(fmt.Stringer); ok {
+			result = append(result, s.String())
+		}
+	}
+	return result
 }
 
 func nullableStrFromOptional(o opt.Optional[string]) *string {

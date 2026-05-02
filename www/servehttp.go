@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"codeberg.org/reiver/go-field/stringly"
+	"codeberg.org/reiver/go-field"
 	"github.com/reiver/go-etag"
 	"github.com/reiver/go-http500"
 
@@ -38,12 +38,12 @@ func serveHTTP(responsewriter http.ResponseWriter, request *http.Request) {
 	defer log.End()
 
 	if nil == responsewriter {
-		log.Error(stringly.S("nil response-writer"))
+		log.Error(field.S("nil response-writer"))
 		return
 	}
 	if nil == request {
 		http500.InternalServerError(responsewriter, request)
-		log.Error(stringly.S("nil request"))
+		log.Error(field.S("nil request"))
 		return
 	}
 
@@ -53,7 +53,7 @@ func serveHTTP(responsewriter http.ResponseWriter, request *http.Request) {
 	}
 	if "" == host {
 		http500.InternalServerError(responsewriter, request)
-		log.Error(stringly.S("empty host"))
+		log.Error(field.S("empty host"))
 		return
 	}
 
@@ -75,16 +75,16 @@ func serveHTTP(responsewriter http.ResponseWriter, request *http.Request) {
 
 	if etag.Handle(responsewriter, request, eTag) {
 		log.Debug(
-			stringly.S("etag caching HIT"),
-			stringly.String("host", host),
-			stringly.String("path", path),
+			field.S("etag caching HIT"),
+			field.String("host", host),
+			field.String("path", path),
 		)
 		return
 	} else {
 		log.Debug(
-			stringly.S("etag caching MISS"),
-			stringly.String("host", host),
-			stringly.String("path", path),
+			field.S("etag caching MISS"),
+			field.String("host", host),
+			field.String("path", path),
 		)
 	}
 

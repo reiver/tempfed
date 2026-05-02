@@ -9,8 +9,8 @@ import (
 
 	gojson "encoding/json"
 
-	"codeberg.org/reiver/go-asns"
-	"codeberg.org/reiver/go-field/stringly"
+	"codeberg.org/reiver/go-activitypub"
+	"codeberg.org/reiver/go-field"
 	"github.com/reiver/go-http500"
 
 	"tempfed/lib/db"
@@ -38,16 +38,16 @@ func init() {
 }
 
 func serveHTTP(responseWriter http.ResponseWriter, request *http.Request) {
-	log := logsrv.Begin(stringly.String("www.path", path))
+	log := logsrv.Begin(field.String("www.path", path))
 	defer log.End()
 
 	if nil == responseWriter {
-		log.Error(stringly.S("nil HTTP response-writer"))
+		log.Error(field.S("nil HTTP response-writer"))
 		return
 	}
 	if nil == request {
 		http500.InternalServerError(responseWriter, request)
-		log.Error(stringly.S("nil HTTP request"))
+		log.Error(field.S("nil HTTP request"))
 		return
 	}
 
@@ -60,45 +60,45 @@ func serveHTTP(responseWriter http.ResponseWriter, request *http.Request) {
 	if nil != err {
 		http500.InternalServerError(responseWriter, request)
 		log.Error(
-			stringly.S("failed to read request body"),
-			stringly.E(err),
+			field.S("failed to read request body"),
+			field.String("error", err.Error()),
 		)
 		return
 	}
 
-	var activity asns.AnyActivity
+	var activity activitypub.AnyActivity
 	err = gojson.Unmarshal(body, &activity)
 	if nil != err {
 		http.Error(responseWriter, "400 Bad Request", http.StatusBadRequest)
 		log.Error(
-			stringly.S("failed to unmarshal activity"),
-			stringly.E(err),
+			field.S("failed to unmarshal activity"),
+			field.String("error", err.Error()),
 		)
 		return
 	}
 
 	activityType := activity.Type.Strings()
 	log.Trace(
-		stringly.String("activity.type", strings.Join(activityType, ", ")),
-		stringly.String("activity.id", activity.ID.GetElse("")),
+		field.String("activity.type", strings.Join(activityType, ", ")),
+		field.String("activity.id", activity.ID.GetElse("")),
 	)
 
-	if !hasType(activityType, asns.TypeCreate) {
+	if !hasType(activityType, activitypub.TypeCreate) {
 		http.Error(responseWriter, "202 Accepted", http.StatusAccepted)
-		log.Trace(stringly.S("ignoring non-Create activity"))
+		log.Trace(field.S("ignoring non-Create activity"))
 		return
 	}
 
 	if nil == activity.Object {
 		http.Error(responseWriter, "400 Bad Request", http.StatusBadRequest)
-		log.Error(stringly.S("Create activity has nil object"))
+		log.Error(field.S("Create activity has nil object"))
 		return
 	}
 
-	obj, ok := activity.Object.(asns.ProtoObject)
+	obj, ok := activity.Object.(activitypub.ProtoObject)
 	if !ok {
 		http.Error(responseWriter, "400 Bad Request", http.StatusBadRequest)
-		log.Error(stringly.S("Create activity object does not implement ProtoObject"))
+		log.Error(field.S("Create activity object does not implement ProtoObject"))
 		return
 	}
 
@@ -108,15 +108,15 @@ func serveHTTP(responseWriter http.ResponseWriter, request *http.Request) {
 	if nil != err {
 		http500.InternalServerError(responseWriter, request)
 		log.Error(
-			stringly.S("failed to insert object into ClickHouse"),
-			stringly.E(err),
+			field.S("failed to insert object into ClickHouse"),
+			field.String("error", err.Error()),
 		)
 		return
 	}
 
 	log.Inform(
-		stringly.S("inserted object from Create activity"),
-		stringly.String("object.id", anyObj.ID.GetElse("")),
+		field.S("inserted object from Create activity"),
+		field.String("object.id", anyObj.ID.GetElse("")),
 	)
 
 	responseWriter.WriteHeader(http.StatusAccepted)

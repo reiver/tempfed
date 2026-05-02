@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"codeberg.org/reiver/go-asns"
-	"codeberg.org/reiver/go-asns/ns/sec1"
-	"codeberg.org/reiver/go-field/stringly"
+	"codeberg.org/reiver/go-activitypub"
+	"codeberg.org/reiver/go-activitypub/ns/sec1"
+	"codeberg.org/reiver/go-field"
 	"github.com/reiver/go-http500"
 	"github.com/reiver/go-opt"
 
@@ -50,33 +50,35 @@ func init() {
 }
 
 func serveHTTP(responseWriter http.ResponseWriter, request *http.Request) {
-	log := logsrv.Begin(stringly.String("www.path", path))
+	log := logsrv.Begin(field.String("www.path", path))
 	defer log.End()
 
 	if nil == responseWriter {
-		log.Error(stringly.S("nil HTTP response-writer"))
+		log.Error(field.S("nil HTTP response-writer"))
 		return
 	}
 	if nil == request {
 		http500.InternalServerError(responseWriter, request)
-		log.Error(stringly.S("nil HTTP request"))
+		log.Error(field.S("nil HTTP request"))
 		return
 	}
 
 	var host string = request.Host
 
-	var application = asns.Application{
+	var application = activitypub.Application{
 		ID: opt.Something(librefs.RelayActor(host)),
 
-		PreferredUserName: asns.SomeString("relay"),
+		CoreActor: activitypub.CoreActor{
+			PreferredUserName: activitypub.SomeString("relay"),
 
-		InBox: opt.Something(librefs.RelayActorInBox(host)),
+			InBox: opt.Something(librefs.RelayActorInBox(host)),
 
-		Followers: opt.Something(librefs.RelayActorFollowers(host)),
-		Following: opt.Something(librefs.RelayActorFollowing(host)),
+			Followers: opt.Something(librefs.RelayActorFollowers(host)),
+			Following: opt.Something(librefs.RelayActorFollowing(host)),
 
-		EndPoints: asns.EndPoints{
-			SharedInBox: opt.Something(librefs.RelayActorInBox(host)),
+			EndPoints: activitypub.EndPoints{
+				SharedInBox: opt.Something(librefs.RelayActorInBox(host)),
+			},
 		},
 	}
 
@@ -94,15 +96,15 @@ func serveHTTP(responseWriter http.ResponseWriter, request *http.Request) {
 		marshalArgs = append(marshalArgs, security)
 	}
 
-	bytes, err := asns.Marshal(marshalArgs...)
+	bytes, err := activitypub.Marshal(marshalArgs...)
 	if nil != err {
 		http500.InternalServerError(responseWriter, request)
 		log.Error(
-			stringly.S("failed to jsonld-marshal ActivityPub / ActivityStreams 'Application'"),
-			stringly.E(err),
+			field.S("failed to jsonld-marshal ActivityPub / ActivityStreams 'Application'"),
+			field.String("error", err.Error()),
 		)
 		return
 	}
 
-	asns.ServeHTTP(responseWriter, request, bytes)
+	activitypub.ServeHTTP(responseWriter, request, bytes)
 }
